@@ -22,6 +22,19 @@ export const IPHONE_DEVICES: DevicePreset[] = [
   { id: "iphone-13-pro-max", label: "iPhone 13 Pro Max", width: 1284, height: 2778, platform: "iphone" },
   { id: "iphone-13", label: "iPhone 13 / 13 Pro", width: 1170, height: 2532, platform: "iphone" },
   { id: "iphone-se", label: "iPhone SE (3rd gen)", width: 750, height: 1334, platform: "iphone" },
+
+  // iPad (portrait)
+  { id: "ipad-pro-13-m4", label: "iPad Pro 13\" (M4)", width: 2064, height: 2752, platform: "iphone" },
+  { id: "ipad-pro-11-m4", label: "iPad Pro 11\" (M4)", width: 1668, height: 2420, platform: "iphone" },
+  { id: "ipad-pro-12-9-m2", label: "iPad Pro 12.9\" (M2)", width: 2048, height: 2732, platform: "iphone" },
+  { id: "ipad-pro-11-m2", label: "iPad Pro 11\" (M2)", width: 1668, height: 2388, platform: "iphone" },
+  { id: "ipad-air-13-m2", label: "iPad Air 13\" (M2/M3)", width: 2048, height: 2732, platform: "iphone" },
+  { id: "ipad-air-11-m2", label: "iPad Air 11\" (M2/M3)", width: 1640, height: 2360, platform: "iphone" },
+  { id: "ipad-air-5", label: "iPad Air (5th gen)", width: 1640, height: 2360, platform: "iphone" },
+  { id: "ipad-10", label: "iPad (10th gen)", width: 1640, height: 2360, platform: "iphone" },
+  { id: "ipad-a16-11", label: "iPad (A16, 11th gen)", width: 1620, height: 2160, platform: "iphone" },
+  { id: "ipad-mini-a17", label: "iPad mini (A17 Pro / 6th gen)", width: 1488, height: 2266, platform: "iphone" },
+
   { id: "iphone-custom", label: "Custom width x height", width: 1179, height: 2556, platform: "custom" },
 ];
 
@@ -94,14 +107,6 @@ export const DEFAULT_ANDROID =
   ANDROID_DEVICES.find((d) => d.platform === "android") ??
   ANDROID_DEVICES[0];
 export const DEFAULT_DEVICE = DEFAULT_IPHONE;
-
-export function getDeviceById(id: string): DevicePreset | undefined {
-  return ALL_DEVICES.find((d) => d.id === id);
-}
-
-export function devicePlatform(id: string): "iphone" | "android" {
-  return IPHONE_DEVICES.some((d) => d.id === id) ? "iphone" : "android";
-}
 
 export function devicesForPlatform(platform: "iphone" | "android"): DevicePreset[] {
   return platform === "iphone" ? IPHONE_DEVICES : ANDROID_DEVICES;

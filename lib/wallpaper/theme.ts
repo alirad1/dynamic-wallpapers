@@ -15,7 +15,6 @@ export type ThemeColors = {
   fg: string;
   muted: string;
   accent: string;
-  accentSoft: string;
   empty: string;
   past: string;
 };
@@ -56,7 +55,6 @@ export function getThemeColors(
       fg: "#F3F4F6",
       muted: "#9CA3AF",
       accent: pair.accent,
-      accentSoft: pair.accent,
       empty: "#1F2937",
       past: pair.past,
     };
@@ -66,7 +64,6 @@ export function getThemeColors(
     fg: "#111827",
     muted: "#6B7280",
     accent: pair.accent,
-    accentSoft: pair.accent,
     empty: "#E5E7EB",
     past: pair.past,
   };

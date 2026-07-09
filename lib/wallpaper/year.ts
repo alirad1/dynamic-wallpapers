@@ -68,7 +68,6 @@ export function buildYearSvg(options: YearWallpaperOptions): string {
     );
   }
 
-  const remaining = Math.max(0, totalDays - todayIndex + (todayIndex > 0 ? 1 : 0));
   const remainingLabel =
     year === today.getFullYear()
       ? `${Math.max(0, totalDays - todayIndex)} days left in ${year}`

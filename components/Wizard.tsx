@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import {
   ANDROID_DEVICES,
   DEFAULT_ANDROID,
@@ -76,11 +76,11 @@ export function Wizard() {
   const [progressLabel, setProgressLabel] = useState("This year");
   const [progressStart, setProgressStart] = useState(yearStartISO());
   const [progressEnd, setProgressEnd] = useState(yearEndISO());
-  const [origin, setOrigin] = useState("");
-
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
+  const origin = useSyncExternalStore(
+    () => () => {},
+    () => window.location.origin,
+    () => "",
+  );
 
   const device: DevicePreset =
     [...IPHONE_DEVICES, ...ANDROID_DEVICES].find((d) => d.id === deviceId) ??
@@ -158,7 +158,7 @@ export function Wizard() {
 
   function go(next: number) {
     setDirection(next > step ? 1 : -1);
-    setStep(Math.max(0, Math.min(STEPS.length - 1, next)));
+    setStep(Math.max(0, Math.min(STEPS.length, next)));
   }
 
   function selectPlatform(p: "iphone" | "android") {
@@ -253,6 +253,8 @@ export function Wizard() {
                 {step === 3 && (
                   <SetupSteps wallpaperUrl={wallpaperUrl} platform={platform} />
                 )}
+
+                {step === 4 && <StepDone />}
               </motion.div>
             </AnimatePresence>
           </div>
@@ -267,7 +269,7 @@ export function Wizard() {
               Back
             </button>
 
-            {step < STEPS.length - 1 ? (
+            {step < STEPS.length - 1 && (
               <button
                 type="button"
                 onClick={() => go(step + 1)}
@@ -276,10 +278,16 @@ export function Wizard() {
               >
                 Continue
               </button>
-            ) : (
-              <span className="rounded-xl bg-[var(--forest)] px-6 py-2.5 text-sm font-semibold text-white">
+            )}
+
+            {step === STEPS.length - 1 && (
+              <button
+                type="button"
+                onClick={() => go(STEPS.length)}
+                className="glow-pulse rounded-xl bg-[var(--forest)] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--forest-mid)]"
+              >
                 You are all set!
-              </span>
+              </button>
             )}
           </div>
         </motion.div>
@@ -300,12 +308,12 @@ function Stepper({
   onJump: (s: number) => void;
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center justify-center gap-2">
       {STEPS.map((label, i) => {
         const active = i === step;
         const done = i < step;
         return (
-          <div key={label} className="flex flex-1 items-center gap-2">
+          <div key={label} className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => onJump(i)}
@@ -332,7 +340,7 @@ function Stepper({
               <span className="hidden sm:inline">{label}</span>
             </button>
             {i < STEPS.length - 1 && (
-              <div className="relative h-px flex-1 bg-[var(--border)]">
+              <div className="relative h-px w-8 bg-[var(--border)] sm:w-10">
                 <motion.div
                   className="absolute inset-y-0 left-0 bg-[var(--forest-mid)]"
                   initial={false}
@@ -355,6 +363,77 @@ function StepHeading({ title, sub }: { title: string; sub: string }) {
         {title}
       </h2>
       <p className="mt-1 text-sm text-[var(--muted)]">{sub}</p>
+    </div>
+  );
+}
+
+function StepDone() {
+  return (
+    <div className="flex flex-col items-center text-center">
+      <motion.div
+        initial={{ scale: 0.6, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="flex h-16 w-16 items-center justify-center rounded-full border border-[var(--forest-bright)] bg-[var(--forest-deep)]/60 text-[var(--forest-glow)]"
+      >
+        <svg viewBox="0 0 24 24" fill="none" className="h-8 w-8">
+          <path
+            d="M5 13l4 4L19 7"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </motion.div>
+
+      <h2 className="mt-6 font-display text-2xl tracking-tight text-[var(--ink)]">
+        You are all set!
+      </h2>
+      <p className="mt-2 max-w-sm text-sm leading-relaxed text-[var(--muted)]">
+        Your wallpaper will refresh on its own every morning. There is nothing
+        else to do. Enjoy the little nudge each time you glance at your phone.
+      </p>
+
+      <div className="mt-7 w-full max-w-sm space-y-3 text-left">
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-4 py-3.5">
+          <p className="text-sm font-medium text-[var(--ink)]">
+            More things I have built
+          </p>
+          <p className="mt-1 text-sm leading-relaxed text-[var(--muted)]">
+            I make small, free tools like this one. You can find the rest at{" "}
+            <a
+              href="https://alirad.dev"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-[var(--forest-glow)] underline underline-offset-2 hover:text-[var(--forest-bright)]"
+            >
+              alirad.dev
+            </a>
+            .
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-[var(--forest-mid)]/40 bg-[var(--forest-deep)]/25 px-4 py-3.5">
+          <p className="text-sm font-medium text-[var(--forest-glow)]">
+            Want to chip in?
+          </p>
+          <p className="mt-1 text-sm leading-relaxed text-[var(--muted)]">
+            This is free and always will be. If it brightens your day and you
+            feel like helping me keep these projects online and updated, a small
+            tip is genuinely appreciated. No pressure at all. You can{" "}
+            <a
+              href="https://www.paypal.com/paypalme/theradicalone"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-[var(--forest-glow)] underline underline-offset-2 hover:text-[var(--forest-bright)]"
+            >
+              buy me a coffee here
+            </a>
+            .
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -685,7 +764,7 @@ function StepDevice({
           active={platform === "iphone"}
           onClick={() => onPlatform("iphone")}
           logo="apple"
-          label="iPhone"
+          label="Apple"
           sub="iOS Shortcuts"
         />
         <PlatformButton

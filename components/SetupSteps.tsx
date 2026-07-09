@@ -12,51 +12,51 @@ type Step = { title: string; body: string };
 
 const IPHONE_STEPS: Step[] = [
   {
-    title: "Open Shortcuts",
-    body: "In the Shortcuts app, go to the Automation tab and tap New Automation.",
+    title: "Open the Shortcuts app",
+    body: "Open Shortcuts, tap the Automation tab at the bottom, then tap the plus button to start a new automation.",
   },
   {
-    title: "Create a daily trigger",
-    body: "Choose Time of Day, set 6:00 AM, Repeat Daily, then select Run Immediately and Create New Shortcut.",
+    title: "Set it to run every morning",
+    body: "Pick Time of Day as the trigger, set a time like 6:00 AM, and choose Daily. Turn on Run Immediately so it applies the wallpaper without asking you first, then continue and choose New Blank Automation.",
   },
   {
-    title: "Get Contents of URL",
-    body: "Add the Get Contents of URL action and paste your wallpaper URL from above.",
+    title: "Add Get Contents of URL",
+    body: "Search for the Get Contents of URL action, add it, and paste your wallpaper URL from above into the URL field.",
   },
   {
-    title: "Set Wallpaper Photo",
-    body: "Add Set Wallpaper Photo and choose Lock Screen.",
+    title: "Add Set Wallpaper Photo",
+    body: "Add the Set Wallpaper Photo action below it. It will use the downloaded image automatically. Set the location to Lock Screen.",
   },
   {
     title: "Turn off cropping",
-    body: "Tap the arrow to show options, then disable both Crop to Subject and Show Preview so iOS stops cropping and asking for confirmation.",
+    body: "On the Set Wallpaper Photo action, tap the arrow to reveal its options and turn off both Crop to Subject and Show Preview. This stops iOS from zooming the image or asking you to confirm each morning. Tap Done to save.",
   },
 ];
 
 const ANDROID_STEPS: Step[] = [
   {
-    title: "Prerequisites",
-    body: "Install MacroDroid from the Google Play Store.",
+    title: "Install MacroDroid",
+    body: "Get MacroDroid from the Google Play Store. The free version is enough for this.",
   },
   {
-    title: "Setup Macro",
-    body: "Open MacroDroid and tap Add Macro. Set the trigger to Date/Time, Day/Time, set the time to 00:01:00, then activate all weekdays.",
+    title: "Create a new macro",
+    body: "Open MacroDroid, tap Add Macro, and give it a name you will recognize, such as Daily Wallpaper.",
   },
   {
-    title: "Download image",
-    body: "In Configure Actions, go to Web Interactions then HTTP Request. Set the method to GET, paste your wallpaper URL from above, enable Block next actions until complete, tick Save HTTP response to file, and set the folder and filename to /Download/wallpaper.png.",
+    title: "Set a daily trigger",
+    body: "Add a trigger, choose Date/Time then Day of Week / Time, set the time to 12:01 AM, and turn on every day of the week.",
   },
   {
-    title: "Set wallpaper",
-    body: "Add another action: Device Settings then Set Wallpaper. Choose Image and Screen, and enter the exact same folder and filename, /Download/wallpaper.png.",
+    title: "Download the image",
+    body: "Add an action, choose Connectivity then HTTP Request. Set the method to GET, paste your wallpaper URL from above, turn on Block next actions until complete, tick Save HTTP response to file, and set the folder and file name to /Download/wallpaper.png.",
   },
   {
-    title: "Finalize",
-    body: "Give the macro a name and tap Create Macro.",
+    title: "Set the wallpaper",
+    body: "Add a second action, choose Device Settings then Set Wallpaper. Pick Image, choose which screen to set, and point it at the same file, /Download/wallpaper.png.",
   },
   {
-    title: "Test and manage",
-    body: "Test it via MacroDroid, Macros, select your macro, More options, Test macro. Toggle it off or delete it to stop. To change the URL later, tap the HTTP Request action, update the URL, and Save.",
+    title: "Save and test",
+    body: "Save the macro. To check it works, open Macros, tap your macro, open the menu, and choose Test Macro. To pause it, toggle it off. To change the URL later, open the HTTP Request action, update the URL, and save.",
   },
 ];
 
@@ -84,7 +84,7 @@ export function SetupSteps({ wallpaperUrl, platform }: SetupStepsProps) {
         </h2>
         <p className="mt-1 text-sm text-[var(--muted)]">
           Copy your URL, then set a daily automation on your{" "}
-          {platform === "iphone" ? "iPhone" : "Android"}.
+          {platform === "iphone" ? "Apple device" : "Android"}.
         </p>
       </div>
 

@@ -83,8 +83,12 @@ export function Preview({ spec }: PreviewProps) {
             {clock && (
               <div
                 aria-hidden
-                className="pointer-events-none absolute inset-x-0 top-[8%] z-10 flex flex-col items-center text-white"
-                style={{ textShadow: "0 1px 8px rgba(0,0,0,0.35)" }}
+                className="pointer-events-none absolute inset-x-0 top-[8%] z-10 flex flex-col items-center"
+                style={
+                  spec.theme === "light"
+                    ? { color: "#111827", textShadow: "0 1px 6px rgba(255,255,255,0.55)" }
+                    : { color: "#ffffff", textShadow: "0 1px 8px rgba(0,0,0,0.35)" }
+                }
               >
                 <span
                   className="font-medium"

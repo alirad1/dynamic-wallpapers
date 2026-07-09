@@ -16,7 +16,7 @@ Point Shortcuts (iPhone) or MacroDroid (Android) at an image URL once. Re-fetch 
 - **Life:** week squares from date of birth through a lifespan
 - **Goal:** days remaining, progress arc, and label
 - **Progress:** percent complete, bar, and date range
-- Light and dark themes, device presets (iPhone models and Android resolutions), custom width and height
+- Light and dark themes, device presets (Apple iPhone and iPad models, plus Android resolutions), custom width and height
 - Live in-browser preview (rendered instantly, no server round-trips)
 - Lock-screen safe layouts (content sits in the middle band below the clock)
 
