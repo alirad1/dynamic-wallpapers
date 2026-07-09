@@ -1,5 +1,15 @@
 export type WallpaperTheme = "light" | "dark";
 
+export type AccentColor = "green" | "blue" | "purple" | "red" | "black";
+
+export const ACCENT_COLORS: AccentColor[] = [
+  "green",
+  "blue",
+  "purple",
+  "red",
+  "black",
+];
+
 export type ThemeColors = {
   bg: string;
   fg: string;
@@ -10,26 +20,55 @@ export type ThemeColors = {
   past: string;
 };
 
-export function getThemeColors(theme: WallpaperTheme): ThemeColors {
+type AccentPair = { accent: string; past: string };
+
+const ACCENTS: Record<AccentColor, { light: AccentPair; dark: AccentPair }> = {
+  green: {
+    dark: { accent: "#40916C", past: "#1B4332" },
+    light: { accent: "#2D6A4F", past: "#1B4332" },
+  },
+  blue: {
+    dark: { accent: "#4C86C6", past: "#22456B" },
+    light: { accent: "#3E6FA3", past: "#274B6D" },
+  },
+  purple: {
+    dark: { accent: "#8B7BD8", past: "#3A2F63" },
+    light: { accent: "#6C5CB0", past: "#3B3168" },
+  },
+  red: {
+    dark: { accent: "#CB5A54", past: "#5C2320" },
+    light: { accent: "#B24741", past: "#5C2320" },
+  },
+  black: {
+    dark: { accent: "#E9EFEB", past: "#4B5563" },
+    light: { accent: "#111827", past: "#374151" },
+  },
+};
+
+export function getThemeColors(
+  theme: WallpaperTheme,
+  accent: AccentColor = "green",
+): ThemeColors {
+  const pair = (ACCENTS[accent] ?? ACCENTS.green)[theme];
   if (theme === "dark") {
     return {
       bg: "#0F1410",
       fg: "#F3F4F6",
       muted: "#9CA3AF",
-      accent: "#2D6A4F",
-      accentSoft: "#40916C",
+      accent: pair.accent,
+      accentSoft: pair.accent,
       empty: "#1F2937",
-      past: "#1B4332",
+      past: pair.past,
     };
   }
   return {
     bg: "#F3F4F6",
     fg: "#111827",
     muted: "#6B7280",
-    accent: "#2D6A4F",
-    accentSoft: "#1B4332",
+    accent: pair.accent,
+    accentSoft: pair.accent,
     empty: "#E5E7EB",
-    past: "#1B4332",
+    past: pair.past,
   };
 }
 

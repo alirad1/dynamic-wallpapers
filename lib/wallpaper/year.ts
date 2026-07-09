@@ -4,6 +4,7 @@ import {
   todayLocal,
 } from "@/lib/dates";
 import {
+  type AccentColor,
   contentBand,
   escapeXml,
   getThemeColors,
@@ -14,13 +15,14 @@ export type YearWallpaperOptions = {
   width: number;
   height: number;
   theme?: WallpaperTheme;
+  accent?: AccentColor;
   year?: number;
 };
 
 export function buildYearSvg(options: YearWallpaperOptions): string {
   const { width, height } = options;
   const theme = options.theme ?? "light";
-  const colors = getThemeColors(theme);
+  const colors = getThemeColors(theme, options.accent);
   const today = todayLocal();
   const year = options.year ?? today.getFullYear();
   const totalDays = daysInYear(year);

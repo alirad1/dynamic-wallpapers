@@ -1,5 +1,5 @@
 import { parseDate } from "@/lib/dates";
-import { buildLifeSvg, errorResponse, parseDimensions, parseTheme, pngResponse, svgToPng } from "@/lib/wallpaper";
+import { buildLifeSvg, errorResponse, parseAccent, parseDimensions, parseTheme, pngResponse, svgToPng } from "@/lib/wallpaper";
 
 export const runtime = "nodejs";
 
@@ -26,6 +26,7 @@ export async function GET(request: Request) {
     dob,
     lifespan,
     theme,
+    accent: parseAccent(searchParams),
   });
   const png = await svgToPng(svg);
   return pngResponse(png);

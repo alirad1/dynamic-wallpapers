@@ -1,5 +1,6 @@
 import { clamp, daysBetween, formatShortDate, todayLocal } from "@/lib/dates";
 import {
+  type AccentColor,
   contentBand,
   escapeXml,
   getThemeColors,
@@ -13,12 +14,13 @@ export type GoalWallpaperOptions = {
   goalDate: Date;
   startDate?: Date;
   theme?: WallpaperTheme;
+  accent?: AccentColor;
 };
 
 export function buildGoalSvg(options: GoalWallpaperOptions): string {
   const { width, height, goal, goalDate } = options;
   const theme = options.theme ?? "light";
-  const colors = getThemeColors(theme);
+  const colors = getThemeColors(theme, options.accent);
   const today = todayLocal();
   const start = options.startDate ?? today;
   const totalSpan = Math.max(1, daysBetween(start, goalDate));

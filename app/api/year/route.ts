@@ -1,4 +1,4 @@
-import { buildYearSvg, errorResponse, parseDimensions, parseTheme, pngResponse, svgToPng } from "@/lib/wallpaper";
+import { buildYearSvg, errorResponse, parseAccent, parseDimensions, parseTheme, pngResponse, svgToPng } from "@/lib/wallpaper";
 
 export const runtime = "nodejs";
 
@@ -18,6 +18,7 @@ export async function GET(request: Request) {
     width: dims.width,
     height: dims.height,
     theme,
+    accent: parseAccent(searchParams),
     year,
   });
   const png = await svgToPng(svg);

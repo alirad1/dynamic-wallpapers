@@ -43,6 +43,7 @@ All routes return a **PNG**. Shared query params:
 | `width` | `1179` | 200 to 4000 |
 | `height` | `2556` | 200 to 5000 |
 | `theme` | `light` | `light` or `dark` |
+| `color` | `green` | accent: `green`, `blue`, `purple`, `red`, or `black` |
 
 Production host in examples: `https://dynamicwallpapers.alirad.dev`
 

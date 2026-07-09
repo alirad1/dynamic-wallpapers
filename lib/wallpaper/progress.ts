@@ -1,5 +1,6 @@
 import { clamp, daysBetween, formatShortDate, todayLocal } from "@/lib/dates";
 import {
+  type AccentColor,
   contentBand,
   escapeXml,
   getThemeColors,
@@ -13,12 +14,13 @@ export type ProgressWallpaperOptions = {
   startDate: Date;
   endDate: Date;
   theme?: WallpaperTheme;
+  accent?: AccentColor;
 };
 
 export function buildProgressSvg(options: ProgressWallpaperOptions): string {
   const { width, height, label, startDate, endDate } = options;
   const theme = options.theme ?? "light";
-  const colors = getThemeColors(theme);
+  const colors = getThemeColors(theme, options.accent);
   const today = todayLocal();
   const totalSpan = Math.max(1, daysBetween(startDate, endDate));
   const elapsed = clamp(daysBetween(startDate, today), 0, totalSpan);

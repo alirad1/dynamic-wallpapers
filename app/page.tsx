@@ -33,7 +33,7 @@ export default function Home() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Support the developer
+            Support me
           </a>
         </p>
         <p className="mt-2 text-xs font-light text-[var(--faint)]">

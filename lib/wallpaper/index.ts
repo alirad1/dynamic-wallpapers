@@ -8,5 +8,7 @@ export {
   errorResponse,
   parseDimensions,
   parseTheme,
+  parseAccent,
 } from "./render";
-export type { WallpaperTheme } from "./theme";
+export { ACCENT_COLORS } from "./theme";
+export type { AccentColor, WallpaperTheme } from "./theme";

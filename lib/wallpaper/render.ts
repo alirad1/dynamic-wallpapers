@@ -1,4 +1,5 @@
 import sharp from "sharp";
+import { ACCENT_COLORS, type AccentColor } from "./theme";
 
 export async function svgToPng(svg: string): Promise<Buffer> {
   return sharp(Buffer.from(svg)).png().toBuffer();
@@ -39,4 +40,11 @@ export function parseTheme(
   searchParams: URLSearchParams,
 ): "light" | "dark" {
   return searchParams.get("theme") === "dark" ? "dark" : "light";
+}
+
+export function parseAccent(searchParams: URLSearchParams): AccentColor {
+  const raw = searchParams.get("color");
+  return raw && (ACCENT_COLORS as string[]).includes(raw)
+    ? (raw as AccentColor)
+    : "green";
 }

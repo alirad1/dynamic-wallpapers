@@ -1,5 +1,5 @@
 import { parseDate } from "@/lib/dates";
-import { buildProgressSvg, errorResponse, parseDimensions, parseTheme, pngResponse, svgToPng } from "@/lib/wallpaper";
+import { buildProgressSvg, errorResponse, parseAccent, parseDimensions, parseTheme, pngResponse, svgToPng } from "@/lib/wallpaper";
 
 export const runtime = "nodejs";
 
@@ -32,6 +32,7 @@ export async function GET(request: Request) {
     startDate,
     endDate,
     theme,
+    accent: parseAccent(searchParams),
   });
   const png = await svgToPng(svg);
   return pngResponse(png);

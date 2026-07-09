@@ -2,7 +2,7 @@ import { parseDate } from "@/lib/dates";
 import { buildGoalSvg } from "./goal";
 import { buildLifeSvg } from "./life";
 import { buildProgressSvg } from "./progress";
-import type { WallpaperTheme } from "./theme";
+import type { AccentColor, WallpaperTheme } from "./theme";
 import { buildYearSvg } from "./year";
 
 export type WallpaperType = "year" | "life" | "goal" | "progress";
@@ -12,6 +12,7 @@ export type WallpaperSpec = {
   width: number;
   height: number;
   theme: WallpaperTheme;
+  color: AccentColor;
   dob?: string;
   lifespan?: number;
   goal?: string;
@@ -27,16 +28,23 @@ export type WallpaperSpec = {
  * Returns null when the spec is incomplete so callers can show a hint.
  */
 export function buildWallpaperSvg(spec: WallpaperSpec): string | null {
-  const { type, width, height, theme } = spec;
+  const { type, width, height, theme, color } = spec;
 
   if (type === "year") {
-    return buildYearSvg({ width, height, theme });
+    return buildYearSvg({ width, height, theme, accent: color });
   }
 
   if (type === "life") {
     const dob = spec.dob ? parseDate(spec.dob) : null;
     if (!dob) return null;
-    return buildLifeSvg({ width, height, theme, dob, lifespan: spec.lifespan });
+    return buildLifeSvg({
+      width,
+      height,
+      theme,
+      accent: color,
+      dob,
+      lifespan: spec.lifespan,
+    });
   }
 
   if (type === "goal") {
@@ -47,6 +55,7 @@ export function buildWallpaperSvg(spec: WallpaperSpec): string | null {
       width,
       height,
       theme,
+      accent: color,
       goal: spec.goal.trim(),
       goalDate,
       startDate,
@@ -60,6 +69,7 @@ export function buildWallpaperSvg(spec: WallpaperSpec): string | null {
     width,
     height,
     theme,
+    accent: color,
     label: spec.label.trim(),
     startDate,
     endDate,
@@ -72,6 +82,7 @@ export function buildWallpaperPath(spec: WallpaperSpec): string | null {
     width: String(spec.width),
     height: String(spec.height),
     theme: spec.theme,
+    color: spec.color,
   });
 
   if (spec.type === "year") {

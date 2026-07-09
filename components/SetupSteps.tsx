@@ -5,9 +5,12 @@ import { useState } from "react";
 
 type SetupStepsProps = {
   wallpaperUrl: string | null;
+  platform: "iphone" | "android";
 };
 
-const IPHONE_STEPS: { title: string; body: string }[] = [
+type Step = { title: string; body: string };
+
+const IPHONE_STEPS: Step[] = [
   {
     title: "Open Shortcuts",
     body: "In the Shortcuts app, go to the Automation tab and tap New Automation.",
@@ -30,10 +33,34 @@ const IPHONE_STEPS: { title: string; body: string }[] = [
   },
 ];
 
-const FILE_PATH = "/Download/wallpaper.png";
+const ANDROID_STEPS: Step[] = [
+  {
+    title: "Prerequisites",
+    body: "Install MacroDroid from the Google Play Store.",
+  },
+  {
+    title: "Setup Macro",
+    body: "Open MacroDroid and tap Add Macro. Set the trigger to Date/Time, Day/Time, set the time to 00:01:00, then activate all weekdays.",
+  },
+  {
+    title: "Download image",
+    body: "In Configure Actions, go to Web Interactions then HTTP Request. Set the method to GET, paste your wallpaper URL from above, enable Block next actions until complete, tick Save HTTP response to file, and set the folder and filename to /Download/wallpaper.png.",
+  },
+  {
+    title: "Set wallpaper",
+    body: "Add another action: Device Settings then Set Wallpaper. Choose Image and Screen, and enter the exact same folder and filename, /Download/wallpaper.png.",
+  },
+  {
+    title: "Finalize",
+    body: "Give the macro a name and tap Create Macro.",
+  },
+  {
+    title: "Test and manage",
+    body: "Test it via MacroDroid, Macros, select your macro, More options, Test macro. Toggle it off or delete it to stop. To change the URL later, tap the HTTP Request action, update the URL, and Save.",
+  },
+];
 
-export function SetupSteps({ wallpaperUrl }: SetupStepsProps) {
-  const [platform, setPlatform] = useState<"iphone" | "android">("iphone");
+export function SetupSteps({ wallpaperUrl, platform }: SetupStepsProps) {
   const [copied, setCopied] = useState(false);
 
   async function copyUrl() {
@@ -47,6 +74,8 @@ export function SetupSteps({ wallpaperUrl }: SetupStepsProps) {
     }
   }
 
+  const steps = platform === "iphone" ? IPHONE_STEPS : ANDROID_STEPS;
+
   return (
     <div>
       <div className="mb-6">
@@ -54,7 +83,8 @@ export function SetupSteps({ wallpaperUrl }: SetupStepsProps) {
           Put it on your phone
         </h2>
         <p className="mt-1 text-sm text-[var(--muted)]">
-          Copy your URL, then set a daily automation.
+          Copy your URL, then set a daily automation on your{" "}
+          {platform === "iphone" ? "iPhone" : "Android"}.
         </p>
       </div>
 
@@ -75,214 +105,55 @@ export function SetupSteps({ wallpaperUrl }: SetupStepsProps) {
         </motion.button>
       </div>
 
-      <div className="mt-6 inline-flex rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-1">
-        {(["iphone", "android"] as const).map((p) => (
-          <button
-            key={p}
-            type="button"
-            onClick={() => setPlatform(p)}
-            className={`rounded-lg px-4 py-1.5 text-sm transition ${
-              platform === p
-                ? "bg-[var(--forest)] text-white"
-                : "text-[var(--muted)] hover:text-[var(--ink)]"
-            }`}
-          >
-            {p === "iphone" ? "iPhone" : "Android"}
-          </button>
-        ))}
-      </div>
+      {platform === "iphone" && (
+        <div className="mt-4 rounded-xl border border-[var(--forest-mid)]/40 bg-[var(--forest-deep)]/25 px-4 py-3 text-sm leading-relaxed text-[var(--muted)]">
+          <p className="font-semibold text-[var(--forest-glow)]">
+            Important: turn off cropping
+          </p>
+          <p className="mt-1">
+            When setting the lock screen, disable{" "}
+            <span className="font-medium text-[var(--ink)]">Crop to Subject</span>{" "}
+            and{" "}
+            <span className="font-medium text-[var(--ink)]">Show Preview</span>{" "}
+            (or any depth and zoom effects). They crop or blur the layout and
+            break the design.
+          </p>
+        </div>
+      )}
 
       <AnimatePresence mode="wait">
-        <motion.div
+        <motion.ol
           key={platform}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.25 }}
-          className="mt-5"
+          initial="hidden"
+          animate="show"
+          exit={{ opacity: 0 }}
+          variants={{ show: { transition: { staggerChildren: 0.06 } } }}
+          className="mt-5 space-y-3"
         >
-          {platform === "iphone" ? <IphoneGuide /> : <AndroidGuide />}
-        </motion.div>
+          {steps.map((s, i) => (
+            <motion.li
+              key={s.title}
+              variants={{
+                hidden: { opacity: 0, x: -12 },
+                show: { opacity: 1, x: 0 },
+              }}
+              className="flex gap-3"
+            >
+              <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--forest-mid)] bg-[var(--forest-deep)] text-xs font-semibold text-[var(--forest-glow)]">
+                {i + 1}
+              </span>
+              <div className="pt-0.5">
+                <p className="text-sm font-medium text-[var(--ink)]">
+                  {s.title}
+                </p>
+                <p className="mt-0.5 text-sm leading-relaxed text-[var(--muted)]">
+                  {s.body}
+                </p>
+              </div>
+            </motion.li>
+          ))}
+        </motion.ol>
       </AnimatePresence>
     </div>
-  );
-}
-
-function IphoneGuide() {
-  return (
-    <div>
-      <Callout title="Important: turn off cropping">
-        When setting the lock screen, disable{" "}
-        <B>Crop to Subject</B> and <B>Show Preview</B> (or any depth and zoom
-        effects). They crop or blur the layout and break the design.
-      </Callout>
-
-      <ol className="mt-4 space-y-3">
-        {IPHONE_STEPS.map((s, i) => (
-          <li key={s.title} className="flex gap-3">
-            <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--forest-mid)] bg-[var(--forest-deep)] text-xs font-semibold text-[var(--forest-glow)]">
-              {i + 1}
-            </span>
-            <div className="pt-0.5">
-              <p className="text-sm font-medium text-[var(--ink)]">{s.title}</p>
-              <p className="mt-0.5 text-sm leading-relaxed text-[var(--muted)]">
-                {s.body}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
-function AndroidGuide() {
-  return (
-    <div className="space-y-5">
-      <Section badge="1" title="Prerequisites">
-        <p>
-          Install <B>MacroDroid</B> from the Google Play Store.
-        </p>
-      </Section>
-
-      <Section badge="2" title="Setup Macro">
-        <p>
-          Open <B>MacroDroid</B> and tap <B>Add Macro</B>.
-        </p>
-        <p className="mt-2">
-          <B>Trigger:</B> Date/Time to Day/Time, set the time to{" "}
-          <B>00:01:00</B>, then activate <B>all weekdays</B>.
-        </p>
-      </Section>
-
-      <Section badge="3" title="Configure Actions">
-        <div>
-          <p className="text-sm font-medium text-[var(--ink)]">
-            3.1 Download Image
-          </p>
-          <ul className="mt-2 space-y-1.5">
-            <Bullet>
-              Go to <B>Web Interactions</B> then <B>HTTP Request</B>
-            </Bullet>
-            <Bullet>
-              Request method: <B>GET</B>
-            </Bullet>
-            <Bullet>Paste the URL you copied above</Bullet>
-            <Bullet>
-              Enable: <B>Block next actions until complete</B>
-            </Bullet>
-            <Bullet>
-              Response: tick <B>Save HTTP response to file</B>
-            </Bullet>
-            <Bullet>
-              Folder and filename: <Mono>{FILE_PATH}</Mono>
-            </Bullet>
-          </ul>
-        </div>
-
-        <div className="mt-4">
-          <p className="text-sm font-medium text-[var(--ink)]">
-            3.2 Set Wallpaper
-          </p>
-          <ul className="mt-2 space-y-1.5">
-            <Bullet>
-              Go to <B>Device Settings</B> then <B>Set Wallpaper</B>
-            </Bullet>
-            <Bullet>
-              Choose <B>Image</B> and <B>Screen</B>
-            </Bullet>
-            <Bullet>
-              Enter folder and filename: <Mono>{FILE_PATH}</Mono>
-            </Bullet>
-          </ul>
-        </div>
-
-        <div className="mt-4">
-          <Callout title="Important">
-            Use the <B>exact same folder and filename</B> in both actions.
-          </Callout>
-        </div>
-      </Section>
-
-      <Section badge="4" title="Finalize">
-        <p>
-          Give the macro a name and tap <B>Create Macro</B>.
-        </p>
-      </Section>
-
-      <Section badge="?" title="Testing and Managing">
-        <p>
-          <B>Test:</B> MacroDroid to Macros, select your macro, More options,
-          then <B>Test macro</B>.
-        </p>
-        <p className="mt-2">
-          <B>Stop:</B> toggle off or delete the macro.
-        </p>
-        <p className="mt-2">
-          <B>Edit URL:</B> tap the HTTP Request action, update the URL, then
-          Save.
-        </p>
-      </Section>
-    </div>
-  );
-}
-
-function Section({
-  badge,
-  title,
-  children,
-}: {
-  badge: string;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <div className="mb-2.5 flex items-center gap-3">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[var(--forest-mid)] bg-[var(--forest-deep)] text-xs font-semibold text-[var(--forest-glow)]">
-          {badge}
-        </span>
-        <h3 className="text-base font-semibold text-[var(--ink)]">{title}</h3>
-      </div>
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-4 py-3 text-sm leading-relaxed text-[var(--muted)]">
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function Callout({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-[var(--forest-mid)]/40 bg-[var(--forest-deep)]/25 px-4 py-3 text-sm leading-relaxed text-[var(--muted)]">
-      <p className="font-semibold text-[var(--forest-glow)]">{title}</p>
-      <p className="mt-1">{children}</p>
-    </div>
-  );
-}
-
-function Bullet({ children }: { children: React.ReactNode }) {
-  return (
-    <li className="flex gap-2">
-      <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-[var(--forest-mid)]" />
-      <span>{children}</span>
-    </li>
-  );
-}
-
-function B({ children }: { children: React.ReactNode }) {
-  return <span className="font-medium text-[var(--ink)]">{children}</span>;
-}
-
-function Mono({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="rounded bg-[var(--surface)] px-1.5 py-0.5 font-mono text-xs text-[var(--forest-glow)]">
-      {children}
-    </span>
   );
 }

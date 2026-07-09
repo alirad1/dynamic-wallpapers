@@ -12,6 +12,7 @@ import {
   type DevicePreset,
 } from "@/lib/devices";
 import { buildWallpaperPath, type WallpaperSpec, type WallpaperType } from "@/lib/wallpaper/build";
+import { ACCENT_COLORS, type AccentColor } from "@/lib/wallpaper/theme";
 import { Combobox } from "./Combobox";
 import { Preview } from "./Preview";
 import { SetupSteps } from "./SetupSteps";
@@ -61,6 +62,7 @@ export function Wizard() {
 
   const [type, setType] = useState<WallpaperType>("year");
   const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [color, setColor] = useState<AccentColor>("green");
   const [platform, setPlatform] = useState<"iphone" | "android">("iphone");
   const [deviceId, setDeviceId] = useState(DEFAULT_DEVICE.id);
   const [customWidth, setCustomWidth] = useState(1080);
@@ -93,6 +95,7 @@ export function Wizard() {
       width,
       height,
       theme,
+      color,
       dob,
       lifespan,
       goal,
@@ -107,6 +110,7 @@ export function Wizard() {
       width,
       height,
       theme,
+      color,
       dob,
       lifespan,
       goal,
@@ -211,6 +215,8 @@ export function Wizard() {
                     type={type}
                     theme={theme}
                     setTheme={setTheme}
+                    color={color}
+                    setColor={setColor}
                     dob={dob}
                     setDob={setDob}
                     lifespan={lifespan}
@@ -244,7 +250,9 @@ export function Wizard() {
                   />
                 )}
 
-                {step === 3 && <SetupSteps wallpaperUrl={wallpaperUrl} />}
+                {step === 3 && (
+                  <SetupSteps wallpaperUrl={wallpaperUrl} platform={platform} />
+                )}
               </motion.div>
             </AnimatePresence>
           </div>
@@ -269,8 +277,8 @@ export function Wizard() {
                 Continue
               </button>
             ) : (
-              <span className="text-sm text-[var(--forest-glow)]">
-                You are all set
+              <span className="rounded-xl bg-[var(--forest)] px-6 py-2.5 text-sm font-semibold text-white">
+                You are all set!
               </span>
             )}
           </div>
@@ -467,6 +475,8 @@ type DetailsProps = {
   type: WallpaperType;
   theme: "light" | "dark";
   setTheme: (t: "light" | "dark") => void;
+  color: AccentColor;
+  setColor: (c: AccentColor) => void;
   dob: string;
   setDob: (v: string) => void;
   lifespan: number;
@@ -486,7 +496,7 @@ type DetailsProps = {
 };
 
 function StepDetails(props: DetailsProps) {
-  const { type, theme, setTheme } = props;
+  const { type, theme, setTheme, color, setColor } = props;
   return (
     <div>
       <StepHeading
@@ -587,13 +597,13 @@ function StepDetails(props: DetailsProps) {
         )}
 
         <Field label="Theme">
-          <div className="inline-flex rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-1">
+          <div className="inline-flex w-full rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-1">
             {(["dark", "light"] as const).map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setTheme(t)}
-                className={`rounded-lg px-4 py-1.5 text-sm capitalize transition ${
+                className={`flex-1 rounded-lg px-4 py-1.5 text-sm capitalize transition ${
                   theme === t
                     ? "bg-[var(--forest)] text-white"
                     : "text-[var(--muted)] hover:text-[var(--ink)]"
@@ -604,10 +614,38 @@ function StepDetails(props: DetailsProps) {
             ))}
           </div>
         </Field>
+
+        <Field label="Color">
+          <div className="flex items-center gap-2.5 py-1">
+            {ACCENT_COLORS.map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => setColor(c)}
+                aria-label={c}
+                title={c[0].toUpperCase() + c.slice(1)}
+                className={`h-8 w-8 rounded-full border-2 transition ${
+                  color === c
+                    ? "border-[var(--ink)] scale-110"
+                    : "border-transparent hover:scale-105"
+                }`}
+                style={{ backgroundColor: ACCENT_SWATCH[c] }}
+              />
+            ))}
+          </div>
+        </Field>
       </div>
     </div>
   );
 }
+
+const ACCENT_SWATCH: Record<AccentColor, string> = {
+  green: "#40916C",
+  blue: "#4C86C6",
+  purple: "#8B7BD8",
+  red: "#CB5A54",
+  black: "#3A403C",
+};
 
 function StepDevice({
   platform,

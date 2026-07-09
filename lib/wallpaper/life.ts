@@ -5,6 +5,7 @@ import {
   weeksLived,
 } from "@/lib/dates";
 import {
+  type AccentColor,
   contentBand,
   escapeXml,
   getThemeColors,
@@ -17,13 +18,14 @@ export type LifeWallpaperOptions = {
   dob: Date;
   lifespan?: number;
   theme?: WallpaperTheme;
+  accent?: AccentColor;
 };
 
 export function buildLifeSvg(options: LifeWallpaperOptions): string {
   const { width, height, dob } = options;
   const theme = options.theme ?? "light";
   const lifespan = clamp(options.lifespan ?? 90, 1, 120);
-  const colors = getThemeColors(theme);
+  const colors = getThemeColors(theme, options.accent);
   const today = todayLocal();
   const lived = weeksLived(dob, today);
   const total = totalLifeWeeks(lifespan);
