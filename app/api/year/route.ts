@@ -14,13 +14,18 @@ export async function GET(request: Request) {
     return errorResponse("year must be between 1970 and 2100");
   }
 
-  const svg = buildYearSvg({
-    width: dims.width,
-    height: dims.height,
-    theme,
-    accent: parseAccent(searchParams),
-    year,
-  });
-  const png = await svgToPng(svg);
-  return pngResponse(png);
+  try {
+    const svg = buildYearSvg({
+      width: dims.width,
+      height: dims.height,
+      theme,
+      accent: parseAccent(searchParams),
+      year,
+    });
+    const png = await svgToPng(svg);
+    return pngResponse(png);
+  } catch (err) {
+    console.error("year wallpaper error:", err);
+    return errorResponse("Failed to render wallpaper", 500);
+  }
 }

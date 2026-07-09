@@ -55,6 +55,6 @@ export function buildGoalSvg(options: GoalWallpaperOptions): string {
   ${svgText({ x: cx, y: cy - numberSize * 0.05, text: daysLabel, fontSize: numberSize, fill: colors.fg, bold: true })}
   ${svgText({ x: cx, y: cy + labelSize * 1.4, text: unitLabel, fontSize: labelSize, fill: colors.muted })}
   ${svgText({ x: cx, y: cy + radius + goalSize * 2.2, text: goal.slice(0, 48), fontSize: goalSize, fill: colors.fg, bold: true })}
-  ${svgText({ x: cx, y: cy + radius + goalSize * 3.4, text: `${formatShortDate(goalDate)} · ${Math.round(progress * 100)}%`, fontSize: mutedSize, fill: colors.muted })}
+  ${svgText({ x: cx, y: cy + radius + goalSize * 3.4, text: `${formatShortDate(goalDate)}, ${Math.round(progress * 100)}%`, fontSize: mutedSize, fill: colors.muted })}
 </svg>`;
 }

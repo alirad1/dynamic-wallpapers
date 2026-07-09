@@ -46,7 +46,7 @@ export function buildProgressSvg(options: ProgressWallpaperOptions): string {
   ${svgText({ x: width / 2, y: band.centerY + numberSize * 0.25, text: `${pct}%`, fontSize: numberSize, fill: colors.fg, bold: true })}
   <rect x="${barX}" y="${barY}" width="${barW}" height="${barH}" rx="${barH / 2}" fill="${colors.empty}"/>
   <rect x="${barX}" y="${barY}" width="${fillW}" height="${barH}" rx="${barH / 2}" fill="${colors.accent}"/>
-  ${svgText({ x: width / 2, y: barY + barH + mutedSize * 2.2, text: `${formatShortDate(startDate)} → ${formatShortDate(endDate)}`, fontSize: mutedSize, fill: colors.muted })}
+  ${svgText({ x: width / 2, y: barY + barH + mutedSize * 2.2, text: `${formatShortDate(startDate)} to ${formatShortDate(endDate)}`, fontSize: mutedSize, fill: colors.muted })}
   ${svgText({ x: width / 2, y: barY + barH + mutedSize * 3.6, text: remaining === 0 ? "Complete" : `${remaining} day${remaining === 1 ? "" : "s"} remaining`, fontSize: mutedSize, fill: colors.muted })}
 </svg>`;
 }

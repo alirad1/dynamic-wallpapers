@@ -14,13 +14,18 @@ export async function GET(request: Request) {
   if (!dob) return errorResponse("dob must be YYYY-MM-DD");
 
   const theme = parseTheme(searchParams);
-  const svg = buildLifeSvg({
-    width: dims.width,
-    height: dims.height,
-    dob,
-    theme,
-    accent: parseAccent(searchParams),
-  });
-  const png = await svgToPng(svg);
-  return pngResponse(png);
+  try {
+    const svg = buildLifeSvg({
+      width: dims.width,
+      height: dims.height,
+      dob,
+      theme,
+      accent: parseAccent(searchParams),
+    });
+    const png = await svgToPng(svg);
+    return pngResponse(png);
+  } catch (err) {
+    console.error("life wallpaper error:", err);
+    return errorResponse("Failed to render wallpaper", 500);
+  }
 }

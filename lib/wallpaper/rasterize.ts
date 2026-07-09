@@ -1,6 +1,6 @@
-import { existsSync, readFileSync } from "fs";
-import { join } from "path";
+import { Buffer } from "buffer";
 import * as opentype from "opentype.js";
+import { DEJAVU_SANS_B64, DEJAVU_SANS_BOLD_B64 } from "./font-data";
 import type { SvgTextOptions } from "./svg-label";
 
 let regularFont: opentype.Font | null = null;
@@ -9,40 +9,51 @@ let boldFont: opentype.Font | null = null;
 const TEXT_RE =
   /<text x="([\d.]+)" y="([\d.]+)" text-anchor="([^"]+)" font-family="[^"]*" font-size="(\d+)" font-weight="(\d+)" fill="([^"]+)">([^<]*)<\/text>/g;
 
-function resolveFontsDir(): string {
-  const candidates = [
-    join(process.cwd(), "lib/wallpaper/fonts"),
-    join(process.cwd(), ".next/server/lib/wallpaper/fonts"),
-  ];
-  for (const dir of candidates) {
-    if (existsSync(join(dir, "DejaVuSans.ttf"))) return dir;
-  }
-  return candidates[0];
-}
-
 function loadFonts(): { regular: opentype.Font; bold: opentype.Font } {
   if (regularFont && boldFont) {
     return { regular: regularFont, bold: boldFont };
   }
-  const dir = resolveFontsDir();
   regularFont = opentype.parse(
-    readFileSync(join(dir, "DejaVuSans.ttf")),
+    Buffer.from(DEJAVU_SANS_B64, "base64"),
   ) as opentype.Font;
   boldFont = opentype.parse(
-    readFileSync(join(dir, "DejaVuSans-Bold.ttf")),
+    Buffer.from(DEJAVU_SANS_BOLD_B64, "base64"),
   ) as opentype.Font;
   return { regular: regularFont, bold: boldFont };
+}
+
+function sanitizeText(text: string): string {
+  return text.replace(/[^\x20-\x7E]/g, (ch) => {
+    if (ch === "→") return " to ";
+    if (ch === "·") return ", ";
+    if (ch === "—" || ch === "–") return "-";
+    return "";
+  });
 }
 
 function svgTextPath(opts: SvgTextOptions): string {
   const { regular, bold } = loadFonts();
   const font = opts.bold ? bold : regular;
   const anchor = opts.anchor ?? "middle";
-  const advance = font.getAdvanceWidth(opts.text, opts.fontSize);
+  const text = sanitizeText(opts.text);
+  const scale = opts.fontSize / font.unitsPerEm;
+
+  const glyphs = [...text].map((char) => font.charToGlyph(char));
+  const totalAdvance = glyphs.reduce(
+    (sum, glyph) => sum + (glyph.advanceWidth ?? 0) * scale,
+    0,
+  );
+
   let x = opts.x;
-  if (anchor === "middle") x -= advance / 2;
-  else if (anchor === "end") x -= advance;
-  const path = font.getPath(opts.text, x, opts.y, opts.fontSize);
+  if (anchor === "middle") x -= totalAdvance / 2;
+  else if (anchor === "end") x -= totalAdvance;
+
+  const path = new opentype.Path();
+  let cursor = x;
+  for (const glyph of glyphs) {
+    path.extend(glyph.getPath(cursor, opts.y, opts.fontSize));
+    cursor += (glyph.advanceWidth ?? 0) * scale;
+  }
   return `<path d="${path.toPathData(2)}" fill="${opts.fill}"/>`;
 }
 

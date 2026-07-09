@@ -25,15 +25,20 @@ export async function GET(request: Request) {
   }
 
   const theme = parseTheme(searchParams);
-  const svg = buildGoalSvg({
-    width: dims.width,
-    height: dims.height,
-    goal,
-    goalDate,
-    startDate,
-    theme,
-    accent: parseAccent(searchParams),
-  });
-  const png = await svgToPng(svg);
-  return pngResponse(png);
+  try {
+    const svg = buildGoalSvg({
+      width: dims.width,
+      height: dims.height,
+      goal,
+      goalDate,
+      startDate,
+      theme,
+      accent: parseAccent(searchParams),
+    });
+    const png = await svgToPng(svg);
+    return pngResponse(png);
+  } catch (err) {
+    console.error("goal wallpaper error:", err);
+    return errorResponse("Failed to render wallpaper", 500);
+  }
 }

@@ -72,7 +72,7 @@ export function buildLifeSvg(options: LifeWallpaperOptions): string {
 <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   <rect width="100%" height="100%" fill="${colors.bg}"/>
   ${svgText({ x: width / 2, y: band.top + titleSize, text: "Life calendar", fontSize: titleSize, fill: colors.fg, bold: true })}
-  ${svgText({ x: width / 2, y: band.top + titleSize * 1.75, text: `${yearsLived} / ${lifespan} years · ${pct}%`, fontSize: subtitleSize, fill: colors.muted })}
+  ${svgText({ x: width / 2, y: band.top + titleSize * 1.75, text: `${yearsLived} / ${lifespan} years, ${pct}%`, fontSize: subtitleSize, fill: colors.muted })}
   ${cells.join("\n  ")}
   ${svgText({ x: width / 2, y: height - band.bottom * 0.55, text: "Each square is one week", fontSize: subtitleSize, fill: colors.muted })}
 </svg>`;

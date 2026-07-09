@@ -16,18 +16,17 @@ import { ACCENT_COLORS, type AccentColor } from "@/lib/wallpaper/theme";
 import { Combobox } from "./Combobox";
 import { Preview } from "./Preview";
 import { SetupSteps } from "./SetupSteps";
-import { TypePreviewGrid } from "./TypePreviewGrid";
+import { typeSampleDataUri } from "@/lib/wallpaper/samples";
 
 const TYPES: {
   id: WallpaperType;
   label: string;
   blurb: string;
-  icon: string;
 }[] = [
-  { id: "year", label: "Year", blurb: "Every day of the year as a grid", icon: "grid" },
-  { id: "life", label: "Life", blurb: "One square for every week you live", icon: "life" },
-  { id: "goal", label: "Goal", blurb: "Countdown to a date that matters", icon: "ring" },
-  { id: "progress", label: "Progress", blurb: "Percent through any range", icon: "bar" },
+  { id: "year", label: "Year", blurb: "Every day of the year as a grid" },
+  { id: "life", label: "Life", blurb: "One square for every week you live" },
+  { id: "goal", label: "Goal", blurb: "Countdown to a date that matters" },
+  { id: "progress", label: "Progress", blurb: "Percent through any range" },
 ];
 
 const STEPS = ["Type", "Details", "Device", "Install"] as const;
@@ -166,7 +165,11 @@ export function Wizard() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-5 pb-28 pt-14 sm:px-8 sm:pt-20">
+    <div
+      className={`mx-auto w-full px-5 pb-28 pt-14 sm:px-8 sm:pt-20 ${
+        step === 0 ? "max-w-5xl" : "max-w-6xl"
+      }`}
+    >
       <motion.header
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -184,7 +187,7 @@ export function Wizard() {
 
       <div
         className={`grid min-w-0 gap-10 lg:items-start ${
-          step <= 1 ? "lg:grid-cols-[minmax(0,1fr)_260px]" : ""
+          step === 1 ? "lg:grid-cols-[minmax(0,1fr)_300px]" : ""
         }`}
       >
         <motion.div
@@ -210,14 +213,7 @@ export function Wizard() {
                 exit="exit"
                 transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
               >
-                {step === 0 && (
-                  <>
-                    <StepType type={type} onPick={setType} />
-                    <div className="mt-8 lg:hidden">
-                      <TypePreviewGrid />
-                    </div>
-                  </>
-                )}
+                {step === 0 && <StepType type={type} onPick={setType} />}
 
                 {step === 1 && (
                   <StepDetails
@@ -299,9 +295,9 @@ export function Wizard() {
           </div>
         </motion.div>
 
-        {step <= 1 && (
+        {step === 1 && (
           <aside className="relative z-0 hidden lg:block lg:sticky lg:top-10">
-            {step === 0 ? <TypePreviewGrid /> : <Preview spec={spec} />}
+            <Preview spec={spec} />
           </aside>
         )}
       </div>
@@ -461,101 +457,58 @@ function StepType({
         sub="Pick a style. You can change it anytime."
       />
       <motion.div
-        className="grid gap-3 sm:grid-cols-2"
+        className="grid gap-4 sm:grid-cols-2 lg:gap-5"
         initial="hidden"
         animate="show"
         variants={{
           show: { transition: { staggerChildren: 0.06 } },
         }}
       >
-        {TYPES.map((t) => (
-          <motion.button
-            key={t.id}
-            type="button"
-            onClick={() => onPick(t.id)}
-            variants={{
-              hidden: { opacity: 0, y: 12 },
-              show: { opacity: 1, y: 0 },
-            }}
-            whileHover={{ y: -3 }}
-            whileTap={{ scale: 0.98 }}
-            className={`group flex items-start gap-3 rounded-2xl border p-4 text-left transition ${
-              type === t.id
-                ? "border-[var(--forest-bright)] bg-[var(--forest-deep)]/50"
-                : "border-[var(--border)] bg-[var(--surface-2)] hover:border-[var(--border-strong)]"
-            }`}
-          >
-            <TypeIcon name={t.icon} />
-            <span>
-              <span className="block text-sm font-semibold text-[var(--ink)]">
-                {t.label}
-              </span>
-              <span className="mt-0.5 block text-xs text-[var(--muted)]">
-                {t.blurb}
-              </span>
-            </span>
-          </motion.button>
-        ))}
+        {TYPES.map((t) => {
+          const preview = typeSampleDataUri(t.id);
+          const active = type === t.id;
+          return (
+            <motion.button
+              key={t.id}
+              type="button"
+              onClick={() => onPick(t.id)}
+              variants={{
+                hidden: { opacity: 0, y: 12 },
+                show: { opacity: 1, y: 0 },
+              }}
+              whileHover={{ y: -3 }}
+              whileTap={{ scale: 0.98 }}
+              className={`group flex flex-col overflow-hidden rounded-2xl border text-left transition ${
+                active
+                  ? "border-[var(--forest-bright)] bg-[var(--forest-deep)]/50"
+                  : "border-[var(--border)] bg-[var(--surface-2)] hover:border-[var(--border-strong)]"
+              }`}
+            >
+              <div className="px-4 pt-4 sm:px-5 sm:pt-5">
+                <span className="block text-base font-semibold text-[var(--ink)]">
+                  {t.label}
+                </span>
+                <span className="mt-1 block text-sm leading-relaxed text-[var(--muted)]">
+                  {t.blurb}
+                </span>
+              </div>
+
+              <div className="relative mt-4 h-36 w-full overflow-hidden bg-[#0F1410] sm:h-40 lg:h-52">
+                {preview ? (
+                  <img
+                    src={preview}
+                    alt={`${t.label} wallpaper preview`}
+                    className="absolute left-1/2 top-1/2 h-[165%] w-full max-w-none -translate-x-1/2 -translate-y-[40%] object-cover"
+                  />
+                ) : null}
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-[#0F1410] to-transparent" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[#0F1410] to-transparent" />
+              </div>
+            </motion.button>
+          );
+        })}
       </motion.div>
     </div>
-  );
-}
-
-function TypeIcon({ name }: { name: string }) {
-  const common = "h-9 w-9 shrink-0 rounded-xl bg-[var(--forest-deep)]/60 p-2 text-[var(--forest-glow)]";
-  if (name === "ring") {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" className={common}>
-        <circle cx="12" cy="12" r="8" stroke="currentColor" strokeOpacity="0.3" strokeWidth="2.5" />
-        <path d="M12 4a8 8 0 0 1 7 4.2" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-      </svg>
-    );
-  }
-  if (name === "bar") {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" className={common}>
-        <rect x="3" y="10" width="18" height="4" rx="2" stroke="currentColor" strokeOpacity="0.3" strokeWidth="2" />
-        <rect x="3" y="10" width="11" height="4" rx="2" fill="currentColor" />
-      </svg>
-    );
-  }
-  if (name === "life") {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" className={common}>
-        {[0, 1, 2].map((r) =>
-          [0, 1, 2, 3].map((c) => (
-            <rect
-              key={`${r}-${c}`}
-              x={4 + c * 4.5}
-              y={5 + r * 5}
-              width="3"
-              height="3"
-              rx="0.8"
-              fill="currentColor"
-              fillOpacity={r === 0 ? 1 : 0.35}
-            />
-          )),
-        )}
-      </svg>
-    );
-  }
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={common}>
-      {[0, 1, 2].map((r) =>
-        [0, 1, 2, 3, 4].map((c) => (
-          <rect
-            key={`${r}-${c}`}
-            x={3 + c * 3.8}
-            y={5 + r * 4.8}
-            width="2.6"
-            height="2.6"
-            rx="0.7"
-            fill="currentColor"
-            fillOpacity={r * 5 + c < 7 ? 1 : 0.35}
-          />
-        )),
-      )}
-    </svg>
   );
 }
 
