@@ -24,11 +24,10 @@ export type LifeWallpaperOptions = {
 export function buildLifeSvg(options: LifeWallpaperOptions): string {
   const { width, height, dob } = options;
   const theme = options.theme ?? "light";
-  const lifespan = LIFE_EXPECTANCY_YEARS;
   const colors = getThemeColors(theme, options.accent);
   const today = todayLocal();
   const lived = weeksLived(dob, today);
-  const total = totalLifeWeeks(lifespan);
+  const total = totalLifeWeeks();
   const currentWeek = clamp(lived, 0, total - 1);
 
   const band = contentBand(height);
@@ -72,7 +71,7 @@ export function buildLifeSvg(options: LifeWallpaperOptions): string {
 <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   <rect width="100%" height="100%" fill="${colors.bg}"/>
   ${svgText({ x: width / 2, y: band.top + titleSize, text: "Life calendar", fontSize: titleSize, fill: colors.fg, bold: true })}
-  ${svgText({ x: width / 2, y: band.top + titleSize * 1.75, text: `${yearsLived} / ${lifespan} years, ${pct}%`, fontSize: subtitleSize, fill: colors.muted })}
+  ${svgText({ x: width / 2, y: band.top + titleSize * 1.75, text: `${yearsLived} / ${LIFE_EXPECTANCY_YEARS} years, ${pct}%`, fontSize: subtitleSize, fill: colors.muted })}
   ${cells.join("\n  ")}
   ${svgText({ x: width / 2, y: height - band.bottom * 0.55, text: "Each square is one week", fontSize: subtitleSize, fill: colors.muted })}
 </svg>`;

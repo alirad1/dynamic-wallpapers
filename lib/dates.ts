@@ -59,6 +59,6 @@ export function weeksLived(dob: Date, asOf: Date = todayLocal()): number {
 
 export const LIFE_EXPECTANCY_YEARS = 80;
 
-export function totalLifeWeeks(lifespanYears: number): number {
-  return Math.round(lifespanYears * 52.1429);
+export function totalLifeWeeks(): number {
+  return Math.round(LIFE_EXPECTANCY_YEARS * 52.1429);
 }
