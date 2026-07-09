@@ -4,11 +4,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import {
   ANDROID_DEVICES,
+  DEFAULT_ANDROID,
   DEFAULT_DEVICE,
+  DEFAULT_IPHONE,
+  devicesForPlatform,
   IPHONE_DEVICES,
   type DevicePreset,
 } from "@/lib/devices";
 import { buildWallpaperPath, type WallpaperSpec, type WallpaperType } from "@/lib/wallpaper/build";
+import { Combobox } from "./Combobox";
 import { Preview } from "./Preview";
 import { SetupSteps } from "./SetupSteps";
 
@@ -57,6 +61,7 @@ export function Wizard() {
 
   const [type, setType] = useState<WallpaperType>("year");
   const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [platform, setPlatform] = useState<"iphone" | "android">("iphone");
   const [deviceId, setDeviceId] = useState(DEFAULT_DEVICE.id);
   const [customWidth, setCustomWidth] = useState(1080);
   const [customHeight, setCustomHeight] = useState(2400);
@@ -152,6 +157,12 @@ export function Wizard() {
     setStep(Math.max(0, Math.min(STEPS.length - 1, next)));
   }
 
+  function selectPlatform(p: "iphone" | "android") {
+    if (p === platform) return;
+    setPlatform(p);
+    setDeviceId(p === "iphone" ? DEFAULT_IPHONE.id : DEFAULT_ANDROID.id);
+  }
+
   return (
     <div className="mx-auto w-full max-w-6xl px-5 pb-28 pt-14 sm:px-8 sm:pt-20">
       <motion.header
@@ -160,11 +171,7 @@ export function Wizard() {
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         className="mb-12 text-center"
       >
-        <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3.5 py-1.5 text-xs font-medium text-[var(--forest-glow)]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[var(--forest-bright)] glow-pulse" />
-          No account, no app, updates itself daily
-        </span>
-        <h1 className="font-display mt-6 text-5xl tracking-tight sm:text-6xl md:text-7xl">
+        <h1 className="font-display text-5xl tracking-tight sm:text-6xl md:text-7xl">
           <span className="text-shimmer">Dynamic Wallpapers</span>
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-[var(--muted)] sm:text-lg">
@@ -197,15 +204,7 @@ export function Wizard() {
                 exit="exit"
                 transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
               >
-                {step === 0 && (
-                  <StepType
-                    type={type}
-                    onPick={(t) => {
-                      setType(t);
-                      go(1);
-                    }}
-                  />
-                )}
+                {step === 0 && <StepType type={type} onPick={setType} />}
 
                 {step === 1 && (
                   <StepDetails
@@ -233,6 +232,8 @@ export function Wizard() {
 
                 {step === 2 && (
                   <StepDevice
+                    platform={platform}
+                    onPlatform={selectPlatform}
                     deviceId={deviceId}
                     setDeviceId={setDeviceId}
                     device={device}
@@ -609,6 +610,8 @@ function StepDetails(props: DetailsProps) {
 }
 
 function StepDevice({
+  platform,
+  onPlatform,
   deviceId,
   setDeviceId,
   device,
@@ -617,6 +620,8 @@ function StepDevice({
   customHeight,
   setCustomHeight,
 }: {
+  platform: "iphone" | "android";
+  onPlatform: (p: "iphone" | "android") => void;
   deviceId: string;
   setDeviceId: (v: string) => void;
   device: DevicePreset;
@@ -625,34 +630,44 @@ function StepDevice({
   customHeight: number;
   setCustomHeight: (v: number) => void;
 }) {
+  const options = devicesForPlatform(platform).map((d) => ({
+    id: d.id,
+    label:
+      d.platform === "custom" ? d.label : `${d.label} (${d.width}x${d.height})`,
+  }));
+
   return (
     <div>
       <StepHeading
         title="Match your screen"
         sub="This sets the exact resolution so nothing gets cropped."
       />
+
+      <div className="mb-5 grid grid-cols-2 gap-3">
+        <PlatformButton
+          active={platform === "iphone"}
+          onClick={() => onPlatform("iphone")}
+          logo="apple"
+          label="iPhone"
+          sub="iOS Shortcuts"
+        />
+        <PlatformButton
+          active={platform === "android"}
+          onClick={() => onPlatform("android")}
+          logo="android"
+          label="Android"
+          sub="MacroDroid"
+        />
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Device" className="sm:col-span-2">
-          <select
+          <Combobox
+            options={options}
             value={deviceId}
-            onChange={(e) => setDeviceId(e.target.value)}
-            className="field"
-          >
-            <optgroup label="iPhone">
-              {IPHONE_DEVICES.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.label} ({d.width}x{d.height})
-                </option>
-              ))}
-            </optgroup>
-            <optgroup label="Android">
-              {ANDROID_DEVICES.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.label}
-                </option>
-              ))}
-            </optgroup>
-          </select>
+            onChange={setDeviceId}
+            placeholder="Search devices"
+          />
         </Field>
 
         {device.platform === "custom" && (
@@ -681,6 +696,58 @@ function StepDevice({
         )}
       </div>
     </div>
+  );
+}
+
+function PlatformButton({
+  active,
+  onClick,
+  logo,
+  label,
+  sub,
+}: {
+  active: boolean;
+  onClick: () => void;
+  logo: "apple" | "android";
+  label: string;
+  sub: string;
+}) {
+  return (
+    <motion.button
+      type="button"
+      onClick={onClick}
+      whileHover={{ y: -3 }}
+      whileTap={{ scale: 0.98 }}
+      className={`flex flex-col items-center gap-2 rounded-2xl border px-4 py-6 transition ${
+        active
+          ? "border-[var(--forest-bright)] bg-[var(--forest-deep)]/50"
+          : "border-[var(--border)] bg-[var(--surface-2)] hover:border-[var(--border-strong)]"
+      }`}
+    >
+      <span
+        className={active ? "text-[var(--ink)]" : "text-[var(--muted)]"}
+      >
+        {logo === "apple" ? <AppleLogo /> : <AndroidLogo />}
+      </span>
+      <span className="text-base font-semibold text-[var(--ink)]">{label}</span>
+      <span className="text-xs text-[var(--faint)]">{sub}</span>
+    </motion.button>
+  );
+}
+
+function AppleLogo() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-9 w-9">
+      <path d="M17.05 12.53c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.19-1.73-1.36-.14-2.65.8-3.34.8-.68 0-1.75-.78-2.88-.76-1.48.02-2.85.86-3.61 2.19-1.54 2.67-.39 6.62 1.11 8.79.73 1.06 1.6 2.25 2.74 2.21 1.1-.05 1.52-.71 2.85-.71 1.33 0 1.7.71 2.86.69 1.18-.02 1.93-1.08 2.65-2.15.84-1.23 1.18-2.42 1.2-2.48-.03-.01-2.3-.88-2.32-3.51zM14.9 5.86c.6-.73 1.01-1.75.9-2.76-.87.03-1.92.58-2.54 1.31-.56.64-1.05 1.68-.92 2.67.97.07 1.96-.49 2.56-1.22z" />
+    </svg>
+  );
+}
+
+function AndroidLogo() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-9 w-9">
+      <path d="M6 9v7.5A1.5 1.5 0 0 0 7.5 18H8v3a1 1 0 1 0 2 0v-3h4v3a1 1 0 1 0 2 0v-3h.5A1.5 1.5 0 0 0 18 16.5V9H6zM3.5 9A1.5 1.5 0 0 0 2 10.5v4a1.5 1.5 0 1 0 3 0v-4A1.5 1.5 0 0 0 3.5 9zm17 0a1.5 1.5 0 0 0-1.5 1.5v4a1.5 1.5 0 1 0 3 0v-4A1.5 1.5 0 0 0 20.5 9zM15.6 3.2l1.14-1.14a.4.4 0 0 0-.57-.57l-1.28 1.28A5.9 5.9 0 0 0 12 2.1c-.98 0-1.9.24-2.71.66L8.03 1.49a.4.4 0 1 0-.57.57L8.6 3.2A5.94 5.94 0 0 0 6.02 8h11.96c0-1.94-.94-3.66-2.38-4.8zM9.5 6.25a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5zm5 0a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5z" />
+    </svg>
   );
 }
 

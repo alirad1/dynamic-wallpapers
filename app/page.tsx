@@ -31,7 +31,7 @@ export default function Home() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            PayPal
+            Support the developer
           </a>
         </p>
         <p className="mt-2 text-xs font-light text-[var(--faint)]">
