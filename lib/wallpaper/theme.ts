@@ -42,7 +42,7 @@ export function escapeXml(text: string): string {
     .replace(/'/g, "&apos;");
 }
 
-/** Lock-screen safe content band: below clock (~18–22%), above home indicator. */
+/** Lock-screen safe content band: below clock (~18 to 22%), above home indicator. */
 export function contentBand(height: number) {
   const top = Math.round(height * 0.22);
   const bottom = Math.round(height * 0.12);

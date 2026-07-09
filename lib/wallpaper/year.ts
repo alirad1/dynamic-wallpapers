@@ -71,8 +71,8 @@ export function buildYearSvg(options: YearWallpaperOptions): string {
     year === today.getFullYear()
       ? `${Math.max(0, totalDays - todayIndex)} days left in ${year}`
       : year < today.getFullYear()
-        ? `${year} — complete`
-        : `${year} — upcoming`;
+        ? `${year} complete`
+        : `${year} upcoming`;
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">

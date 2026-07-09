@@ -30,7 +30,7 @@ export function parseDimensions(
     return { error: "width and height must be numbers" };
   }
   if (width < 200 || height < 200 || width > 4000 || height > 5000) {
-    return { error: "width/height out of range (200–4000 × 200–5000)" };
+    return { error: "width/height out of range (200 to 4000 x 200 to 5000)" };
   }
   return { width: Math.round(width), height: Math.round(height) };
 }

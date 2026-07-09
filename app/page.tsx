@@ -4,18 +4,18 @@ export default function Home() {
   return (
     <main className="flex-1">
       <Wizard />
-      <footer className="border-t border-[var(--border)] px-5 py-8 text-center text-xs text-[var(--muted)] sm:px-8">
+      <footer className="border-t border-[var(--border)] px-5 py-10 text-center text-xs text-[var(--faint)] sm:px-8">
         <p>
-          Open source ·{" "}
+          Open source,{" "}
           <a
             href="https://github.com/alirad1/dynamic-wallpapers"
-            className="text-[var(--forest)] underline-offset-2 hover:underline"
+            className="text-[var(--forest-glow)] underline-offset-4 transition hover:underline"
             target="_blank"
             rel="noopener noreferrer"
           >
-            GitHub
-          </a>{" "}
-          · MIT License
+            view on GitHub
+          </a>
+          , MIT License.
         </p>
       </footer>
     </main>

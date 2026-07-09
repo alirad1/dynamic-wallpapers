@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import {
   ANDROID_DEVICES,
@@ -7,27 +8,33 @@ import {
   IPHONE_DEVICES,
   type DevicePreset,
 } from "@/lib/devices";
+import { buildWallpaperPath, type WallpaperSpec, type WallpaperType } from "@/lib/wallpaper/build";
 import { Preview } from "./Preview";
 import { SetupSteps } from "./SetupSteps";
 
-export type WallpaperType = "year" | "life" | "goal" | "progress";
-
-const TYPES: { id: WallpaperType; label: string; blurb: string }[] = [
-  { id: "year", label: "Year", blurb: "Days of the year as a grid" },
-  { id: "life", label: "Life", blurb: "Weeks from your birthday" },
-  { id: "goal", label: "Goal", blurb: "Countdown to a date" },
-  { id: "progress", label: "Progress", blurb: "Percent through a range" },
+const TYPES: {
+  id: WallpaperType;
+  label: string;
+  blurb: string;
+  icon: string;
+}[] = [
+  { id: "year", label: "Year", blurb: "Every day of the year as a grid", icon: "grid" },
+  { id: "life", label: "Life", blurb: "One square for every week you live", icon: "life" },
+  { id: "goal", label: "Goal", blurb: "Countdown to a date that matters", icon: "ring" },
+  { id: "progress", label: "Progress", blurb: "Percent through any range", icon: "bar" },
 ];
 
+const STEPS = ["Type", "Details", "Device", "Install"] as const;
+
 function todayISO(): string {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  return isoOffset(0);
 }
 
 function plusDaysISO(days: number): string {
+  return isoOffset(days);
+}
+
+function isoOffset(days: number): string {
   const d = new Date();
   d.setDate(d.getDate() + days);
   const y = d.getFullYear();
@@ -45,13 +52,16 @@ function yearEndISO(): string {
 }
 
 export function Wizard() {
+  const [step, setStep] = useState(0);
+  const [direction, setDirection] = useState(1);
+
   const [type, setType] = useState<WallpaperType>("year");
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
   const [deviceId, setDeviceId] = useState(DEFAULT_DEVICE.id);
   const [customWidth, setCustomWidth] = useState(1080);
   const [customHeight, setCustomHeight] = useState(2400);
 
-  const [dob, setDob] = useState("1995-06-15");
+  const [dob, setDob] = useState("2000-01-01");
   const [lifespan, setLifespan] = useState(90);
   const [goal, setGoal] = useState("Ship the product");
   const [goalDate, setGoalDate] = useState(plusDaysISO(90));
@@ -72,263 +82,603 @@ export function Wizard() {
   const width = device.platform === "custom" ? customWidth : device.width;
   const height = device.platform === "custom" ? customHeight : device.height;
 
-  const pathAndQuery = useMemo(() => {
-    const params = new URLSearchParams({
-      width: String(width),
-      height: String(height),
+  const spec: WallpaperSpec = useMemo(
+    () => ({
+      type,
+      width,
+      height,
       theme,
-    });
+      dob,
+      lifespan,
+      goal,
+      goalDate,
+      goalStart,
+      label: progressLabel,
+      start: progressStart,
+      end: progressEnd,
+    }),
+    [
+      type,
+      width,
+      height,
+      theme,
+      dob,
+      lifespan,
+      goal,
+      goalDate,
+      goalStart,
+      progressLabel,
+      progressStart,
+      progressEnd,
+    ],
+  );
 
-    if (type === "year") {
-      return `/api/year?${params}`;
+  const path = useMemo(() => buildWallpaperPath(spec), [spec]);
+  const wallpaperUrl = path && origin ? `${origin}${path}` : null;
+
+  const canProceed = useMemo(() => {
+    if (step === 1) {
+      if (type === "life") return Boolean(dob);
+      if (type === "goal") return Boolean(goal.trim() && goalDate);
+      if (type === "progress")
+        return Boolean(progressLabel.trim() && progressStart && progressEnd);
+      return true;
     }
-    if (type === "life") {
-      if (!dob) return null;
-      params.set("dob", dob);
-      params.set("lifespan", String(lifespan));
-      return `/api/life?${params}`;
+    if (step === 2 && device.platform === "custom") {
+      return (
+        customWidth >= 200 &&
+        customWidth <= 4000 &&
+        customHeight >= 200 &&
+        customHeight <= 5000
+      );
     }
-    if (type === "goal") {
-      if (!goal.trim() || !goalDate) return null;
-      params.set("goal", goal.trim());
-      params.set("goal_date", goalDate);
-      if (goalStart) params.set("start_date", goalStart);
-      return `/api/goal?${params}`;
-    }
-    if (!progressLabel.trim() || !progressStart || !progressEnd) return null;
-    params.set("label", progressLabel.trim());
-    params.set("start_date", progressStart);
-    params.set("end_date", progressEnd);
-    return `/api/progress?${params}`;
+    return true;
   }, [
+    step,
     type,
-    theme,
-    width,
-    height,
     dob,
-    lifespan,
     goal,
     goalDate,
-    goalStart,
     progressLabel,
     progressStart,
     progressEnd,
+    device.platform,
+    customWidth,
+    customHeight,
   ]);
 
-  const previewUrl = pathAndQuery;
-  const wallpaperUrl =
-    pathAndQuery && origin ? `${origin}${pathAndQuery}` : null;
+  function go(next: number) {
+    setDirection(next > step ? 1 : -1);
+    setStep(Math.max(0, Math.min(STEPS.length - 1, next)));
+  }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
-      <header className="mb-12 max-w-2xl">
-        <p className="font-display text-4xl tracking-tight text-[var(--forest)] sm:text-5xl md:text-6xl">
-          Dynamic Wallpapers
+    <div className="mx-auto w-full max-w-6xl px-5 pb-28 pt-14 sm:px-8 sm:pt-20">
+      <motion.header
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="mb-12 text-center"
+      >
+        <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3.5 py-1.5 text-xs font-medium text-[var(--forest-glow)]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--forest-bright)] glow-pulse" />
+          No account, no app, updates itself daily
+        </span>
+        <h1 className="font-display mt-6 text-5xl tracking-tight sm:text-6xl md:text-7xl">
+          <span className="text-shimmer">Dynamic Wallpapers</span>
+        </h1>
+        <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-[var(--muted)] sm:text-lg">
+          Lock screen wallpapers that quietly track your year, your life, a goal,
+          or any progress. Set it once, and it refreshes every morning.
         </p>
-        <p className="mt-4 max-w-xl text-base leading-relaxed text-[var(--muted)] sm:text-lg">
-          Daily-updating lock screen images — year, life, goal, and progress —
-          via a simple URL. No accounts.
-        </p>
-      </header>
+      </motion.header>
 
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
-        <div className="space-y-10">
-          <section className="space-y-4">
-            <h2 className="font-display text-2xl tracking-tight text-[var(--forest)]">
-              Choose a type
-            </h2>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {TYPES.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => setType(t.id)}
-                  className={`rounded-xl border px-4 py-3 text-left transition ${
-                    type === t.id
-                      ? "border-[var(--forest)] bg-[var(--forest)]/[0.07]"
-                      : "border-[var(--border)] bg-[var(--surface)] hover:border-[var(--forest-mid)]/40"
-                  }`}
-                >
-                  <span className="block text-sm font-semibold text-[var(--ink)]">
-                    {t.label}
-                  </span>
-                  <span className="mt-0.5 block text-xs text-[var(--muted)]">
-                    {t.blurb}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </section>
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          className="rounded-3xl border border-[var(--border)] bg-[var(--surface)]/80 p-6 backdrop-blur-sm sm:p-8"
+        >
+          <Stepper step={step} onJump={(s) => s < step && go(s)} />
 
-          <section className="space-y-4">
-            <h2 className="font-display text-2xl tracking-tight text-[var(--forest)]">
-              Options
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {type === "life" && (
-                <>
-                  <Field label="Date of birth">
-                    <input
-                      type="date"
-                      value={dob}
-                      onChange={(e) => setDob(e.target.value)}
-                      className="field"
-                    />
-                  </Field>
-                  <Field label="Lifespan (years)">
-                    <input
-                      type="number"
-                      min={1}
-                      max={120}
-                      value={lifespan}
-                      onChange={(e) => setLifespan(Number(e.target.value) || 90)}
-                      className="field"
-                    />
-                  </Field>
-                </>
-              )}
-              {type === "goal" && (
-                <>
-                  <Field label="Goal name" className="sm:col-span-2">
-                    <input
-                      type="text"
-                      value={goal}
-                      onChange={(e) => setGoal(e.target.value)}
-                      className="field"
-                      maxLength={48}
-                    />
-                  </Field>
-                  <Field label="Goal date">
-                    <input
-                      type="date"
-                      value={goalDate}
-                      onChange={(e) => setGoalDate(e.target.value)}
-                      className="field"
-                    />
-                  </Field>
-                  <Field label="Start date">
-                    <input
-                      type="date"
-                      value={goalStart}
-                      onChange={(e) => setGoalStart(e.target.value)}
-                      className="field"
-                    />
-                  </Field>
-                </>
-              )}
-              {type === "progress" && (
-                <>
-                  <Field label="Label" className="sm:col-span-2">
-                    <input
-                      type="text"
-                      value={progressLabel}
-                      onChange={(e) => setProgressLabel(e.target.value)}
-                      className="field"
-                      maxLength={48}
-                    />
-                  </Field>
-                  <Field label="Start date">
-                    <input
-                      type="date"
-                      value={progressStart}
-                      onChange={(e) => setProgressStart(e.target.value)}
-                      className="field"
-                    />
-                  </Field>
-                  <Field label="End date">
-                    <input
-                      type="date"
-                      value={progressEnd}
-                      onChange={(e) => setProgressEnd(e.target.value)}
-                      className="field"
-                    />
-                  </Field>
-                </>
-              )}
-              {type === "year" && (
-                <p className="sm:col-span-2 text-sm text-[var(--muted)]">
-                  Uses the current calendar year. Past days fill in; today is
-                  highlighted.
-                </p>
-              )}
+          <div className="relative mt-8 min-h-[320px]">
+            <AnimatePresence mode="wait" custom={direction}>
+              <motion.div
+                key={step}
+                custom={direction}
+                variants={{
+                  enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 40 : -40 }),
+                  center: { opacity: 1, x: 0 },
+                  exit: (dir: number) => ({ opacity: 0, x: dir > 0 ? -40 : 40 }),
+                }}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {step === 0 && (
+                  <StepType
+                    type={type}
+                    onPick={(t) => {
+                      setType(t);
+                      go(1);
+                    }}
+                  />
+                )}
 
-              <Field label="Theme">
-                <div className="inline-flex rounded-lg border border-[var(--border)] bg-[var(--surface)] p-1">
-                  {(["light", "dark"] as const).map((t) => (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => setTheme(t)}
-                      className={`rounded-md px-3 py-1.5 text-sm capitalize transition ${
-                        theme === t
-                          ? "bg-[var(--forest)] text-white"
-                          : "text-[var(--muted)] hover:text-[var(--ink)]"
-                      }`}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
-              </Field>
+                {step === 1 && (
+                  <StepDetails
+                    type={type}
+                    theme={theme}
+                    setTheme={setTheme}
+                    dob={dob}
+                    setDob={setDob}
+                    lifespan={lifespan}
+                    setLifespan={setLifespan}
+                    goal={goal}
+                    setGoal={setGoal}
+                    goalDate={goalDate}
+                    setGoalDate={setGoalDate}
+                    goalStart={goalStart}
+                    setGoalStart={setGoalStart}
+                    progressLabel={progressLabel}
+                    setProgressLabel={setProgressLabel}
+                    progressStart={progressStart}
+                    setProgressStart={setProgressStart}
+                    progressEnd={progressEnd}
+                    setProgressEnd={setProgressEnd}
+                  />
+                )}
 
-              <Field label="Device">
-                <select
-                  value={deviceId}
-                  onChange={(e) => setDeviceId(e.target.value)}
-                  className="field"
-                >
-                  <optgroup label="iPhone">
-                    {IPHONE_DEVICES.map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {d.label} ({d.width}×{d.height})
-                      </option>
-                    ))}
-                  </optgroup>
-                  <optgroup label="Android">
-                    {ANDROID_DEVICES.map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {d.label}
-                      </option>
-                    ))}
-                  </optgroup>
-                </select>
-              </Field>
+                {step === 2 && (
+                  <StepDevice
+                    deviceId={deviceId}
+                    setDeviceId={setDeviceId}
+                    device={device}
+                    customWidth={customWidth}
+                    setCustomWidth={setCustomWidth}
+                    customHeight={customHeight}
+                    setCustomHeight={setCustomHeight}
+                  />
+                )}
 
-              {device.platform === "custom" && (
-                <>
-                  <Field label="Width">
-                    <input
-                      type="number"
-                      min={200}
-                      max={4000}
-                      value={customWidth}
-                      onChange={(e) => setCustomWidth(Number(e.target.value) || 1080)}
-                      className="field"
-                    />
-                  </Field>
-                  <Field label="Height">
-                    <input
-                      type="number"
-                      min={200}
-                      max={5000}
-                      value={customHeight}
-                      onChange={(e) =>
-                        setCustomHeight(Number(e.target.value) || 2400)
-                      }
-                      className="field"
-                    />
-                  </Field>
-                </>
-              )}
-            </div>
-          </section>
+                {step === 3 && <SetupSteps wallpaperUrl={wallpaperUrl} />}
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
-          <SetupSteps wallpaperUrl={wallpaperUrl} />
-        </div>
+          <div className="mt-8 flex items-center justify-between gap-4">
+            <button
+              type="button"
+              onClick={() => go(step - 1)}
+              disabled={step === 0}
+              className="rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--muted)] transition hover:text-[var(--ink)] disabled:cursor-not-allowed disabled:opacity-0"
+            >
+              Back
+            </button>
 
-        <aside className="lg:sticky lg:top-8">
-          <Preview url={previewUrl} width={width} height={height} />
+            {step < STEPS.length - 1 ? (
+              <button
+                type="button"
+                onClick={() => go(step + 1)}
+                disabled={!canProceed}
+                className="glow-pulse rounded-xl bg-[var(--forest)] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--forest-mid)] disabled:cursor-not-allowed disabled:opacity-40 disabled:animate-none"
+              >
+                Continue
+              </button>
+            ) : (
+              <span className="text-sm text-[var(--forest-glow)]">
+                You are all set
+              </span>
+            )}
+          </div>
+        </motion.div>
+
+        <aside className="lg:sticky lg:top-10">
+          <Preview spec={spec} />
         </aside>
+      </div>
+    </div>
+  );
+}
+
+function Stepper({
+  step,
+  onJump,
+}: {
+  step: number;
+  onJump: (s: number) => void;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      {STEPS.map((label, i) => {
+        const active = i === step;
+        const done = i < step;
+        return (
+          <div key={label} className="flex flex-1 items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onJump(i)}
+              disabled={i >= step}
+              className={`flex items-center gap-2 whitespace-nowrap text-xs font-medium transition ${
+                active
+                  ? "text-[var(--forest-glow)]"
+                  : done
+                    ? "text-[var(--forest-mid)] hover:text-[var(--forest-glow)]"
+                    : "text-[var(--faint)]"
+              }`}
+            >
+              <span
+                className={`flex h-6 w-6 items-center justify-center rounded-full border text-[11px] transition ${
+                  active
+                    ? "border-[var(--forest-bright)] bg-[var(--forest)] text-white"
+                    : done
+                      ? "border-[var(--forest-mid)] bg-[var(--forest-deep)] text-[var(--forest-glow)]"
+                      : "border-[var(--border)] text-[var(--faint)]"
+                }`}
+              >
+                {done ? "\u2713" : i + 1}
+              </span>
+              <span className="hidden sm:inline">{label}</span>
+            </button>
+            {i < STEPS.length - 1 && (
+              <div className="relative h-px flex-1 bg-[var(--border)]">
+                <motion.div
+                  className="absolute inset-y-0 left-0 bg-[var(--forest-mid)]"
+                  initial={false}
+                  animate={{ width: done ? "100%" : "0%" }}
+                  transition={{ duration: 0.4 }}
+                />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function StepHeading({ title, sub }: { title: string; sub: string }) {
+  return (
+    <div className="mb-6">
+      <h2 className="font-display text-2xl tracking-tight text-[var(--ink)]">
+        {title}
+      </h2>
+      <p className="mt-1 text-sm text-[var(--muted)]">{sub}</p>
+    </div>
+  );
+}
+
+function StepType({
+  type,
+  onPick,
+}: {
+  type: WallpaperType;
+  onPick: (t: WallpaperType) => void;
+}) {
+  return (
+    <div>
+      <StepHeading
+        title="What do you want to track?"
+        sub="Pick a style. You can change it anytime."
+      />
+      <motion.div
+        className="grid gap-3 sm:grid-cols-2"
+        initial="hidden"
+        animate="show"
+        variants={{
+          show: { transition: { staggerChildren: 0.06 } },
+        }}
+      >
+        {TYPES.map((t) => (
+          <motion.button
+            key={t.id}
+            type="button"
+            onClick={() => onPick(t.id)}
+            variants={{
+              hidden: { opacity: 0, y: 12 },
+              show: { opacity: 1, y: 0 },
+            }}
+            whileHover={{ y: -3 }}
+            whileTap={{ scale: 0.98 }}
+            className={`group flex items-start gap-3 rounded-2xl border p-4 text-left transition ${
+              type === t.id
+                ? "border-[var(--forest-bright)] bg-[var(--forest-deep)]/50"
+                : "border-[var(--border)] bg-[var(--surface-2)] hover:border-[var(--border-strong)]"
+            }`}
+          >
+            <TypeIcon name={t.icon} />
+            <span>
+              <span className="block text-sm font-semibold text-[var(--ink)]">
+                {t.label}
+              </span>
+              <span className="mt-0.5 block text-xs text-[var(--muted)]">
+                {t.blurb}
+              </span>
+            </span>
+          </motion.button>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
+function TypeIcon({ name }: { name: string }) {
+  const common = "h-9 w-9 shrink-0 rounded-xl bg-[var(--forest-deep)]/60 p-2 text-[var(--forest-glow)]";
+  if (name === "ring") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className={common}>
+        <circle cx="12" cy="12" r="8" stroke="currentColor" strokeOpacity="0.3" strokeWidth="2.5" />
+        <path d="M12 4a8 8 0 0 1 7 4.2" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  if (name === "bar") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className={common}>
+        <rect x="3" y="10" width="18" height="4" rx="2" stroke="currentColor" strokeOpacity="0.3" strokeWidth="2" />
+        <rect x="3" y="10" width="11" height="4" rx="2" fill="currentColor" />
+      </svg>
+    );
+  }
+  if (name === "life") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className={common}>
+        {[0, 1, 2].map((r) =>
+          [0, 1, 2, 3].map((c) => (
+            <rect
+              key={`${r}-${c}`}
+              x={4 + c * 4.5}
+              y={5 + r * 5}
+              width="3"
+              height="3"
+              rx="0.8"
+              fill="currentColor"
+              fillOpacity={r === 0 ? 1 : 0.35}
+            />
+          )),
+        )}
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={common}>
+      {[0, 1, 2].map((r) =>
+        [0, 1, 2, 3, 4].map((c) => (
+          <rect
+            key={`${r}-${c}`}
+            x={3 + c * 3.8}
+            y={5 + r * 4.8}
+            width="2.6"
+            height="2.6"
+            rx="0.7"
+            fill="currentColor"
+            fillOpacity={r * 5 + c < 7 ? 1 : 0.35}
+          />
+        )),
+      )}
+    </svg>
+  );
+}
+
+type DetailsProps = {
+  type: WallpaperType;
+  theme: "light" | "dark";
+  setTheme: (t: "light" | "dark") => void;
+  dob: string;
+  setDob: (v: string) => void;
+  lifespan: number;
+  setLifespan: (v: number) => void;
+  goal: string;
+  setGoal: (v: string) => void;
+  goalDate: string;
+  setGoalDate: (v: string) => void;
+  goalStart: string;
+  setGoalStart: (v: string) => void;
+  progressLabel: string;
+  setProgressLabel: (v: string) => void;
+  progressStart: string;
+  setProgressStart: (v: string) => void;
+  progressEnd: string;
+  setProgressEnd: (v: string) => void;
+};
+
+function StepDetails(props: DetailsProps) {
+  const { type, theme, setTheme } = props;
+  return (
+    <div>
+      <StepHeading
+        title="Fine-tune the details"
+        sub="These feed straight into your wallpaper."
+      />
+      <div className="grid gap-4 sm:grid-cols-2">
+        {type === "year" && (
+          <p className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-4 py-3 text-sm text-[var(--muted)] sm:col-span-2">
+            The year grid uses the current calendar year. Past days fill in and
+            today is highlighted. Nothing else to set.
+          </p>
+        )}
+
+        {type === "life" && (
+          <>
+            <Field label="Date of birth">
+              <input
+                type="date"
+                value={props.dob}
+                onChange={(e) => props.setDob(e.target.value)}
+                className="field"
+              />
+            </Field>
+            <Field label="Lifespan (years)">
+              <input
+                type="number"
+                min={1}
+                max={120}
+                value={props.lifespan}
+                onChange={(e) => props.setLifespan(Number(e.target.value) || 90)}
+                className="field"
+              />
+            </Field>
+          </>
+        )}
+
+        {type === "goal" && (
+          <>
+            <Field label="Goal name" className="sm:col-span-2">
+              <input
+                type="text"
+                value={props.goal}
+                onChange={(e) => props.setGoal(e.target.value)}
+                className="field"
+                maxLength={48}
+                placeholder="Launch day"
+              />
+            </Field>
+            <Field label="Goal date">
+              <input
+                type="date"
+                value={props.goalDate}
+                onChange={(e) => props.setGoalDate(e.target.value)}
+                className="field"
+              />
+            </Field>
+            <Field label="Start date">
+              <input
+                type="date"
+                value={props.goalStart}
+                onChange={(e) => props.setGoalStart(e.target.value)}
+                className="field"
+              />
+            </Field>
+          </>
+        )}
+
+        {type === "progress" && (
+          <>
+            <Field label="Label" className="sm:col-span-2">
+              <input
+                type="text"
+                value={props.progressLabel}
+                onChange={(e) => props.setProgressLabel(e.target.value)}
+                className="field"
+                maxLength={48}
+                placeholder="This semester"
+              />
+            </Field>
+            <Field label="Start date">
+              <input
+                type="date"
+                value={props.progressStart}
+                onChange={(e) => props.setProgressStart(e.target.value)}
+                className="field"
+              />
+            </Field>
+            <Field label="End date">
+              <input
+                type="date"
+                value={props.progressEnd}
+                onChange={(e) => props.setProgressEnd(e.target.value)}
+                className="field"
+              />
+            </Field>
+          </>
+        )}
+
+        <Field label="Theme">
+          <div className="inline-flex rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-1">
+            {(["dark", "light"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTheme(t)}
+                className={`rounded-lg px-4 py-1.5 text-sm capitalize transition ${
+                  theme === t
+                    ? "bg-[var(--forest)] text-white"
+                    : "text-[var(--muted)] hover:text-[var(--ink)]"
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        </Field>
+      </div>
+    </div>
+  );
+}
+
+function StepDevice({
+  deviceId,
+  setDeviceId,
+  device,
+  customWidth,
+  setCustomWidth,
+  customHeight,
+  setCustomHeight,
+}: {
+  deviceId: string;
+  setDeviceId: (v: string) => void;
+  device: DevicePreset;
+  customWidth: number;
+  setCustomWidth: (v: number) => void;
+  customHeight: number;
+  setCustomHeight: (v: number) => void;
+}) {
+  return (
+    <div>
+      <StepHeading
+        title="Match your screen"
+        sub="This sets the exact resolution so nothing gets cropped."
+      />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Device" className="sm:col-span-2">
+          <select
+            value={deviceId}
+            onChange={(e) => setDeviceId(e.target.value)}
+            className="field"
+          >
+            <optgroup label="iPhone">
+              {IPHONE_DEVICES.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.label} ({d.width}x{d.height})
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Android">
+              {ANDROID_DEVICES.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.label}
+                </option>
+              ))}
+            </optgroup>
+          </select>
+        </Field>
+
+        {device.platform === "custom" && (
+          <>
+            <Field label="Width">
+              <input
+                type="number"
+                min={200}
+                max={4000}
+                value={customWidth}
+                onChange={(e) => setCustomWidth(Number(e.target.value) || 1080)}
+                className="field"
+              />
+            </Field>
+            <Field label="Height">
+              <input
+                type="number"
+                min={200}
+                max={5000}
+                value={customHeight}
+                onChange={(e) => setCustomHeight(Number(e.target.value) || 2400)}
+                className="field"
+              />
+            </Field>
+          </>
+        )}
       </div>
     </div>
   );
@@ -345,7 +695,7 @@ function Field({
 }) {
   return (
     <label className={`block space-y-1.5 ${className}`}>
-      <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
+      <span className="text-xs font-medium uppercase tracking-wide text-[var(--faint)]">
         {label}
       </span>
       {children}
