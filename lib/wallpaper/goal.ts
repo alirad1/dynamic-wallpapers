@@ -2,11 +2,10 @@ import { clamp, daysBetween, formatShortDate, todayLocal } from "@/lib/dates";
 import {
   type AccentColor,
   contentBand,
-  escapeXml,
   getThemeColors,
-  SVG_FONT_FAMILY,
   type WallpaperTheme,
 } from "./theme";
+import { svgText } from "./svg-label";
 
 export type GoalWallpaperOptions = {
   width: number;
@@ -53,9 +52,9 @@ export function buildGoalSvg(options: GoalWallpaperOptions): string {
   <rect width="100%" height="100%" fill="${colors.bg}"/>
   <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${colors.empty}" stroke-width="${stroke}"/>
   <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${colors.accent}" stroke-width="${stroke}" stroke-linecap="round" stroke-dasharray="${dash.toFixed(2)} ${circumference.toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>
-  <text x="${cx}" y="${cy - numberSize * 0.05}" text-anchor="middle" font-family="${SVG_FONT_FAMILY}" font-size="${numberSize}" font-weight="700" fill="${colors.fg}">${daysLabel}</text>
-  <text x="${cx}" y="${cy + labelSize * 1.4}" text-anchor="middle" font-family="${SVG_FONT_FAMILY}" font-size="${labelSize}" fill="${colors.muted}">${escapeXml(unitLabel)}</text>
-  <text x="${cx}" y="${cy + radius + goalSize * 2.2}" text-anchor="middle" font-family="${SVG_FONT_FAMILY}" font-size="${goalSize}" font-weight="700" fill="${colors.fg}">${escapeXml(goal.slice(0, 48))}</text>
-  <text x="${cx}" y="${cy + radius + goalSize * 3.4}" text-anchor="middle" font-family="${SVG_FONT_FAMILY}" font-size="${mutedSize}" fill="${colors.muted}">${escapeXml(formatShortDate(goalDate))} · ${Math.round(progress * 100)}%</text>
+  ${svgText({ x: cx, y: cy - numberSize * 0.05, text: daysLabel, fontSize: numberSize, fill: colors.fg, bold: true })}
+  ${svgText({ x: cx, y: cy + labelSize * 1.4, text: unitLabel, fontSize: labelSize, fill: colors.muted })}
+  ${svgText({ x: cx, y: cy + radius + goalSize * 2.2, text: goal.slice(0, 48), fontSize: goalSize, fill: colors.fg, bold: true })}
+  ${svgText({ x: cx, y: cy + radius + goalSize * 3.4, text: `${formatShortDate(goalDate)} · ${Math.round(progress * 100)}%`, fontSize: mutedSize, fill: colors.muted })}
 </svg>`;
 }

@@ -8,11 +8,10 @@ import {
 import {
   type AccentColor,
   contentBand,
-  escapeXml,
   getThemeColors,
-  SVG_FONT_FAMILY,
   type WallpaperTheme,
 } from "./theme";
+import { svgText } from "./svg-label";
 
 export type LifeWallpaperOptions = {
   width: number;
@@ -72,9 +71,9 @@ export function buildLifeSvg(options: LifeWallpaperOptions): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   <rect width="100%" height="100%" fill="${colors.bg}"/>
-  <text x="${width / 2}" y="${band.top + titleSize}" text-anchor="middle" font-family="${SVG_FONT_FAMILY}" font-size="${titleSize}" font-weight="700" fill="${colors.fg}">Life calendar</text>
-  <text x="${width / 2}" y="${band.top + titleSize * 1.75}" text-anchor="middle" font-family="${SVG_FONT_FAMILY}" font-size="${subtitleSize}" fill="${colors.muted}">${escapeXml(`${yearsLived} / ${lifespan} years · ${pct}%`)}</text>
+  ${svgText({ x: width / 2, y: band.top + titleSize, text: "Life calendar", fontSize: titleSize, fill: colors.fg, bold: true })}
+  ${svgText({ x: width / 2, y: band.top + titleSize * 1.75, text: `${yearsLived} / ${lifespan} years · ${pct}%`, fontSize: subtitleSize, fill: colors.muted })}
   ${cells.join("\n  ")}
-  <text x="${width / 2}" y="${height - band.bottom * 0.55}" text-anchor="middle" font-family="${SVG_FONT_FAMILY}" font-size="${subtitleSize}" fill="${colors.muted}">Each square is one week</text>
+  ${svgText({ x: width / 2, y: height - band.bottom * 0.55, text: "Each square is one week", fontSize: subtitleSize, fill: colors.muted })}
 </svg>`;
 }

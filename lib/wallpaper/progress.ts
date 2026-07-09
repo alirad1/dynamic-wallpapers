@@ -2,11 +2,10 @@ import { clamp, daysBetween, formatShortDate, todayLocal } from "@/lib/dates";
 import {
   type AccentColor,
   contentBand,
-  escapeXml,
   getThemeColors,
-  SVG_FONT_FAMILY,
   type WallpaperTheme,
 } from "./theme";
+import { svgText } from "./svg-label";
 
 export type ProgressWallpaperOptions = {
   width: number;
@@ -43,11 +42,11 @@ export function buildProgressSvg(options: ProgressWallpaperOptions): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   <rect width="100%" height="100%" fill="${colors.bg}"/>
-  <text x="${width / 2}" y="${band.centerY - numberSize * 0.55}" text-anchor="middle" font-family="${SVG_FONT_FAMILY}" font-size="${labelSize}" font-weight="700" fill="${colors.muted}">${escapeXml(label.slice(0, 48))}</text>
-  <text x="${width / 2}" y="${band.centerY + numberSize * 0.25}" text-anchor="middle" font-family="${SVG_FONT_FAMILY}" font-size="${numberSize}" font-weight="700" fill="${colors.fg}">${pct}%</text>
+  ${svgText({ x: width / 2, y: band.centerY - numberSize * 0.55, text: label.slice(0, 48), fontSize: labelSize, fill: colors.muted, bold: true })}
+  ${svgText({ x: width / 2, y: band.centerY + numberSize * 0.25, text: `${pct}%`, fontSize: numberSize, fill: colors.fg, bold: true })}
   <rect x="${barX}" y="${barY}" width="${barW}" height="${barH}" rx="${barH / 2}" fill="${colors.empty}"/>
   <rect x="${barX}" y="${barY}" width="${fillW}" height="${barH}" rx="${barH / 2}" fill="${colors.accent}"/>
-  <text x="${width / 2}" y="${barY + barH + mutedSize * 2.2}" text-anchor="middle" font-family="${SVG_FONT_FAMILY}" font-size="${mutedSize}" fill="${colors.muted}">${escapeXml(`${formatShortDate(startDate)} → ${formatShortDate(endDate)}`)}</text>
-  <text x="${width / 2}" y="${barY + barH + mutedSize * 3.6}" text-anchor="middle" font-family="${SVG_FONT_FAMILY}" font-size="${mutedSize}" fill="${colors.muted}">${remaining === 0 ? "Complete" : `${remaining} day${remaining === 1 ? "" : "s"} remaining`}</text>
+  ${svgText({ x: width / 2, y: barY + barH + mutedSize * 2.2, text: `${formatShortDate(startDate)} → ${formatShortDate(endDate)}`, fontSize: mutedSize, fill: colors.muted })}
+  ${svgText({ x: width / 2, y: barY + barH + mutedSize * 3.6, text: remaining === 0 ? "Complete" : `${remaining} day${remaining === 1 ? "" : "s"} remaining`, fontSize: mutedSize, fill: colors.muted })}
 </svg>`;
 }

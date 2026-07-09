@@ -1,28 +1,18 @@
-import { existsSync } from "fs";
-import path from "path";
 import sharp from "sharp";
+import { rasterizeWallpaperSvg } from "./rasterize";
 import { ACCENT_COLORS, type AccentColor } from "./theme";
 
-const FONTS_DIR = path.join(process.cwd(), "lib/wallpaper/fonts");
-
-function ensureFontConfig(): void {
-  if (!existsSync(path.join(FONTS_DIR, "fonts.conf"))) return;
-  if (!process.env.FONTCONFIG_PATH) {
-    process.env.FONTCONFIG_PATH = FONTS_DIR;
-  }
-}
-
 export async function svgToPng(svg: string): Promise<Buffer> {
-  ensureFontConfig();
-  return sharp(Buffer.from(svg)).png().toBuffer();
+  const rasterSvg = rasterizeWallpaperSvg(svg);
+  return sharp(Buffer.from(rasterSvg)).png().toBuffer();
 }
 
-export function pngResponse(buffer: Buffer, cacheSeconds = 3600): Response {
+export function pngResponse(buffer: Buffer, cacheSeconds = 300): Response {
   return new Response(new Uint8Array(buffer), {
     status: 200,
     headers: {
       "Content-Type": "image/png",
-      "Cache-Control": `public, s-maxage=${cacheSeconds}, stale-while-revalidate=86400`,
+      "Cache-Control": `public, max-age=${cacheSeconds}, s-maxage=${cacheSeconds}, stale-while-revalidate=600`,
     },
   });
 }

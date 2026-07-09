@@ -16,6 +16,7 @@ import { ACCENT_COLORS, type AccentColor } from "@/lib/wallpaper/theme";
 import { Combobox } from "./Combobox";
 import { Preview } from "./Preview";
 import { SetupSteps } from "./SetupSteps";
+import { TypePreviewGrid } from "./TypePreviewGrid";
 
 const TYPES: {
   id: WallpaperType;
@@ -181,7 +182,11 @@ export function Wizard() {
         </p>
       </motion.header>
 
-      <div className="grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
+      <div
+        className={`grid min-w-0 gap-10 lg:items-start ${
+          step <= 1 ? "lg:grid-cols-[minmax(0,1fr)_260px]" : ""
+        }`}
+      >
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -205,7 +210,14 @@ export function Wizard() {
                 exit="exit"
                 transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
               >
-                {step === 0 && <StepType type={type} onPick={setType} />}
+                {step === 0 && (
+                  <>
+                    <StepType type={type} onPick={setType} />
+                    <div className="mt-8 lg:hidden">
+                      <TypePreviewGrid />
+                    </div>
+                  </>
+                )}
 
                 {step === 1 && (
                   <StepDetails
@@ -287,11 +299,11 @@ export function Wizard() {
           </div>
         </motion.div>
 
-        <aside
-          className={`relative z-0 lg:sticky lg:top-10 ${step === 2 || step === 3 ? "hidden lg:block" : ""}`}
-        >
-          <Preview spec={spec} />
-        </aside>
+        {step <= 1 && (
+          <aside className="relative z-0 hidden lg:block lg:sticky lg:top-10">
+            {step === 0 ? <TypePreviewGrid /> : <Preview spec={spec} />}
+          </aside>
+        )}
       </div>
     </div>
   );
