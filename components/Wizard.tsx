@@ -69,7 +69,6 @@ export function Wizard() {
   const [customHeight, setCustomHeight] = useState(2400);
 
   const [dob, setDob] = useState("2000-01-01");
-  const [lifespan, setLifespan] = useState(90);
   const [goal, setGoal] = useState("Ship the product");
   const [goalDate, setGoalDate] = useState(plusDaysISO(90));
   const [goalStart, setGoalStart] = useState(todayISO());
@@ -97,7 +96,6 @@ export function Wizard() {
       theme,
       color,
       dob,
-      lifespan,
       goal,
       goalDate,
       goalStart,
@@ -112,7 +110,6 @@ export function Wizard() {
       theme,
       color,
       dob,
-      lifespan,
       goal,
       goalDate,
       goalStart,
@@ -184,16 +181,16 @@ export function Wizard() {
         </p>
       </motion.header>
 
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
+      <div className="grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="rounded-3xl border border-[var(--border)] bg-[var(--surface)]/80 p-6 backdrop-blur-sm sm:p-8"
+          className="relative z-20 min-w-0 rounded-3xl border border-[var(--border)] bg-[var(--surface)]/80 p-6 backdrop-blur-sm sm:p-8"
         >
           <Stepper step={step} onJump={(s) => s < step && go(s)} />
 
-          <div className="relative mt-8 min-h-[320px]">
+          <div className="relative mt-8 min-h-[320px] overflow-x-clip overflow-y-visible">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
                 key={step}
@@ -219,8 +216,6 @@ export function Wizard() {
                     setColor={setColor}
                     dob={dob}
                     setDob={setDob}
-                    lifespan={lifespan}
-                    setLifespan={setLifespan}
                     goal={goal}
                     setGoal={setGoal}
                     goalDate={goalDate}
@@ -292,7 +287,9 @@ export function Wizard() {
           </div>
         </motion.div>
 
-        <aside className="lg:sticky lg:top-10">
+        <aside
+          className={`relative z-0 lg:sticky lg:top-10 ${step === 2 || step === 3 ? "hidden lg:block" : ""}`}
+        >
           <Preview spec={spec} />
         </aside>
       </div>
@@ -558,8 +555,6 @@ type DetailsProps = {
   setColor: (c: AccentColor) => void;
   dob: string;
   setDob: (v: string) => void;
-  lifespan: number;
-  setLifespan: (v: number) => void;
   goal: string;
   setGoal: (v: string) => void;
   goalDate: string;
@@ -600,16 +595,10 @@ function StepDetails(props: DetailsProps) {
                 className="field"
               />
             </Field>
-            <Field label="Lifespan (years)">
-              <input
-                type="number"
-                min={1}
-                max={120}
-                value={props.lifespan}
-                onChange={(e) => props.setLifespan(Number(e.target.value) || 90)}
-                className="field"
-              />
-            </Field>
+            <p className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-4 py-3 text-sm text-[var(--muted)] sm:col-span-2">
+              Assuming you live to at least 80 years old. Each square is one
+              week through age 80.
+            </p>
           </>
         )}
 
@@ -765,14 +754,14 @@ function StepDevice({
           onClick={() => onPlatform("iphone")}
           logo="apple"
           label="Apple"
-          sub="iOS Shortcuts"
+          sub="(iOS Shortcuts)"
         />
         <PlatformButton
           active={platform === "android"}
           onClick={() => onPlatform("android")}
           logo="android"
           label="Android"
-          sub="MacroDroid"
+          sub="(MacroDroid)"
         />
       </div>
 

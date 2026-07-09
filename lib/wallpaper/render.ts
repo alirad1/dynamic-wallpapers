@@ -1,7 +1,19 @@
+import { existsSync } from "fs";
+import path from "path";
 import sharp from "sharp";
 import { ACCENT_COLORS, type AccentColor } from "./theme";
 
+const FONTS_DIR = path.join(process.cwd(), "lib/wallpaper/fonts");
+
+function ensureFontConfig(): void {
+  if (!existsSync(path.join(FONTS_DIR, "fonts.conf"))) return;
+  if (!process.env.FONTCONFIG_PATH) {
+    process.env.FONTCONFIG_PATH = FONTS_DIR;
+  }
+}
+
 export async function svgToPng(svg: string): Promise<Buffer> {
+  ensureFontConfig();
   return sharp(Buffer.from(svg)).png().toBuffer();
 }
 

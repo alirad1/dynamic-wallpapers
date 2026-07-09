@@ -1,5 +1,6 @@
 import {
   clamp,
+  LIFE_EXPECTANCY_YEARS,
   todayLocal,
   totalLifeWeeks,
   weeksLived,
@@ -9,6 +10,7 @@ import {
   contentBand,
   escapeXml,
   getThemeColors,
+  SVG_FONT_FAMILY,
   type WallpaperTheme,
 } from "./theme";
 
@@ -16,7 +18,6 @@ export type LifeWallpaperOptions = {
   width: number;
   height: number;
   dob: Date;
-  lifespan?: number;
   theme?: WallpaperTheme;
   accent?: AccentColor;
 };
@@ -24,7 +25,7 @@ export type LifeWallpaperOptions = {
 export function buildLifeSvg(options: LifeWallpaperOptions): string {
   const { width, height, dob } = options;
   const theme = options.theme ?? "light";
-  const lifespan = clamp(options.lifespan ?? 90, 1, 120);
+  const lifespan = LIFE_EXPECTANCY_YEARS;
   const colors = getThemeColors(theme, options.accent);
   const today = todayLocal();
   const lived = weeksLived(dob, today);
@@ -71,9 +72,9 @@ export function buildLifeSvg(options: LifeWallpaperOptions): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   <rect width="100%" height="100%" fill="${colors.bg}"/>
-  <text x="${width / 2}" y="${band.top + titleSize}" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="${titleSize}" font-weight="600" fill="${colors.fg}">Life calendar</text>
-  <text x="${width / 2}" y="${band.top + titleSize * 1.75}" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="${subtitleSize}" fill="${colors.muted}">${escapeXml(`${yearsLived} / ${lifespan} years · ${pct}%`)}</text>
+  <text x="${width / 2}" y="${band.top + titleSize}" text-anchor="middle" font-family="${SVG_FONT_FAMILY}" font-size="${titleSize}" font-weight="700" fill="${colors.fg}">Life calendar</text>
+  <text x="${width / 2}" y="${band.top + titleSize * 1.75}" text-anchor="middle" font-family="${SVG_FONT_FAMILY}" font-size="${subtitleSize}" fill="${colors.muted}">${escapeXml(`${yearsLived} / ${lifespan} years · ${pct}%`)}</text>
   ${cells.join("\n  ")}
-  <text x="${width / 2}" y="${height - band.bottom * 0.45}" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="${subtitleSize}" fill="${colors.muted}">Each square is one week</text>
+  <text x="${width / 2}" y="${height - band.bottom * 0.55}" text-anchor="middle" font-family="${SVG_FONT_FAMILY}" font-size="${subtitleSize}" fill="${colors.muted}">Each square is one week</text>
 </svg>`;
 }

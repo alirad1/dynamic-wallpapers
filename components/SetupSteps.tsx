@@ -77,7 +77,7 @@ export function SetupSteps({ wallpaperUrl, platform }: SetupStepsProps) {
   const steps = platform === "iphone" ? IPHONE_STEPS : ANDROID_STEPS;
 
   return (
-    <div>
+    <div className="min-w-0 overflow-hidden">
       <div className="mb-6">
         <h2 className="font-display text-2xl tracking-tight text-[var(--ink)]">
           Put it on your phone
@@ -88,12 +88,18 @@ export function SetupSteps({ wallpaperUrl, platform }: SetupStepsProps) {
         </p>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
-        <div className="min-w-0 flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-3.5 py-3">
-          <p className="truncate font-mono text-xs text-[var(--forest-glow)] sm:text-sm">
+      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-stretch">
+        <button
+          type="button"
+          onClick={copyUrl}
+          disabled={!wallpaperUrl}
+          title={wallpaperUrl ? "Tap to copy" : undefined}
+          className="min-w-0 max-w-full flex-1 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-3.5 py-3 text-left transition hover:border-[var(--border-strong)] disabled:cursor-not-allowed"
+        >
+          <span className="block w-full truncate font-mono text-xs text-[var(--forest-glow)] sm:text-sm">
             {wallpaperUrl ?? "Finish the earlier steps to generate a URL"}
-          </p>
-        </div>
+          </span>
+        </button>
         <motion.button
           type="button"
           onClick={copyUrl}
@@ -104,6 +110,16 @@ export function SetupSteps({ wallpaperUrl, platform }: SetupStepsProps) {
           {copied ? "Copied" : "Copy URL"}
         </motion.button>
       </div>
+
+      {wallpaperUrl && (
+        <p className="mt-2 text-xs text-[var(--faint)]">
+          {copied ? (
+            <span className="text-[var(--forest-glow)]">Copied to clipboard</span>
+          ) : (
+            "Tap the link or the button to copy it."
+          )}
+        </p>
+      )}
 
       {platform === "iphone" && (
         <div className="mt-4 rounded-xl border border-[var(--forest-mid)]/40 bg-[var(--forest-deep)]/25 px-4 py-3 text-sm leading-relaxed text-[var(--muted)]">
@@ -146,7 +162,7 @@ export function SetupSteps({ wallpaperUrl, platform }: SetupStepsProps) {
                 <p className="text-sm font-medium text-[var(--ink)]">
                   {s.title}
                 </p>
-                <p className="mt-0.5 text-sm leading-relaxed text-[var(--muted)]">
+                <p className="mt-0.5 break-words text-sm leading-relaxed text-[var(--muted)]">
                   {s.body}
                 </p>
               </div>

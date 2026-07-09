@@ -14,7 +14,6 @@ export type WallpaperSpec = {
   theme: WallpaperTheme;
   color: AccentColor;
   dob?: string;
-  lifespan?: number;
   goal?: string;
   goalDate?: string;
   goalStart?: string;
@@ -43,7 +42,6 @@ export function buildWallpaperSvg(spec: WallpaperSpec): string | null {
       theme,
       accent: color,
       dob,
-      lifespan: spec.lifespan,
     });
   }
 
@@ -92,7 +90,6 @@ export function buildWallpaperPath(spec: WallpaperSpec): string | null {
   if (spec.type === "life") {
     if (!spec.dob) return null;
     params.set("dob", spec.dob);
-    if (spec.lifespan) params.set("lifespan", String(spec.lifespan));
     return `/api/life?${params}`;
   }
 

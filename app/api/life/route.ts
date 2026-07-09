@@ -13,18 +13,11 @@ export async function GET(request: Request) {
   const dob = parseDate(dobRaw);
   if (!dob) return errorResponse("dob must be YYYY-MM-DD");
 
-  const lifespanRaw = searchParams.get("lifespan");
-  const lifespan = lifespanRaw ? Number(lifespanRaw) : 90;
-  if (!Number.isFinite(lifespan) || lifespan < 1 || lifespan > 120) {
-    return errorResponse("lifespan must be between 1 and 120");
-  }
-
   const theme = parseTheme(searchParams);
   const svg = buildLifeSvg({
     width: dims.width,
     height: dims.height,
     dob,
-    lifespan,
     theme,
     accent: parseAccent(searchParams),
   });

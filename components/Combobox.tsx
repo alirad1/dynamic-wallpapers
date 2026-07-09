@@ -86,7 +86,7 @@ export function Combobox({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-30 mt-2 w-full overflow-hidden rounded-xl border border-[var(--border-strong)] bg-[var(--surface)] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.8)]"
+            className="absolute z-50 mt-2 w-full overflow-hidden rounded-xl border border-[var(--border-strong)] bg-[var(--surface)] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.8)]"
           >
             <div className="border-b border-[var(--border)] p-2">
               <input

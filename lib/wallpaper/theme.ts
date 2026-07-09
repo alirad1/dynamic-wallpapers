@@ -78,10 +78,13 @@ export function escapeXml(text: string): string {
     .replace(/'/g, "&apos;");
 }
 
-/** Lock-screen safe content band: below clock (~18 to 22%), above home indicator. */
+/** Font family for SVG text (bundled DejaVu Sans via fontconfig). */
+export const SVG_FONT_FAMILY = "DejaVu Sans, sans-serif";
+
+/** Lock-screen safe content band: below clock, above home indicator. */
 export function contentBand(height: number) {
-  const top = Math.round(height * 0.22);
-  const bottom = Math.round(height * 0.12);
+  const top = Math.round(height * 0.28);
+  const bottom = Math.round(height * 0.14);
   const available = height - top - bottom;
   return { top, bottom, available, centerY: top + available / 2 };
 }
