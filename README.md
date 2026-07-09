@@ -97,12 +97,14 @@ Use the on-site wizard for copyable URLs and step-by-step instructions.
 - **iPhone:** Shortcuts automation → Get Contents of URL → Set Wallpaper (Lock Screen), daily.
 - **Android:** MacroDroid (or similar) → daily download → set lock screen wallpaper.
 
-## Deploy (Vercel + custom domain)
+## Deploy (Netlify + custom domain)
 
-1. Import [alirad1/dynamic-wallpapers](https://github.com/alirad1/dynamic-wallpapers) into [Vercel](https://vercel.com).
-2. Deploy with defaults (`npm run build`, Next.js).
-3. In the Vercel project → **Settings → Domains**, add `dynamicwallpapers.alirad.dev`.
-4. At your DNS provider (registrar / Cloudflare), create a **CNAME** for `dynamicwallpapers` → `cname.vercel-dns.com` (or the target Vercel shows).
+Next.js App Router and API routes work on Netlify with zero config (OpenNext adapter is applied automatically).
+
+1. Import [alirad1/dynamic-wallpapers](https://github.com/alirad1/dynamic-wallpapers) into [Netlify](https://app.netlify.com).
+2. Build settings (also in [`netlify.toml`](./netlify.toml)): build command `npm run build`, publish directory `.next`.
+3. In the Netlify site → **Domain management**, add `dynamicwallpapers.alirad.dev`.
+4. At your DNS provider (registrar / Cloudflare), create a **CNAME** for `dynamicwallpapers` → the Netlify target shown in the UI (typically `your-site.netlify.app`, or Netlify’s custom-domain instructions).
 5. Wait for SSL / DNS propagation; confirm [https://dynamicwallpapers.alirad.dev](https://dynamicwallpapers.alirad.dev).
 
 ## Stack
