@@ -1,121 +1,52 @@
 # Dynamic Wallpapers
 
-Daily-updating lock screen wallpapers generated from a URL: year calendar, life calendar, goal countdown, and progress tracker. No accounts, no database.
+Lock screen wallpapers that update themselves every day. Pick something to track (the current year, your life in weeks, a countdown to a goal, or progress through any date range), point your phone at a URL, and the image quietly refreshes every morning. No app to install, no account, no database.
 
-**Live:** [https://dynamicwallpapers.alirad.dev](https://dynamicwallpapers.alirad.dev)
+**Live site:** https://dynamicwallpapers.alirad.dev
 
-## Why
+## The idea
 
-Phone lock screens are glanced at dozens of times a day. A wallpaper that quietly shows how the year (or a goal) is progressing turns that habit into a gentle reminder, without another app or notification.
+Most people glance at their lock screen dozens of times a day. I wanted that glance to carry a small bit of meaning, like a reminder that the year is 60% gone or that a deadline is 12 days away, without piling on another notification or app.
 
-Point Shortcuts (iPhone) or MacroDroid (Android) at an image URL once. Re-fetch it daily and the PNG updates itself.
+It all runs on one simple trick. An image URL renders a fresh PNG every time it is requested, so you set up a daily automation once (Shortcuts on iPhone, MacroDroid on Android) and then forget about it. The wallpaper keeps itself current.
 
-## Features
+## What it does
 
-- **Year:** grid of days (past, today, future)
-- **Life:** week squares from date of birth through a lifespan
-- **Goal:** days remaining, progress arc, and label
-- **Progress:** percent complete, bar, and date range
-- Light and dark themes, device presets (Apple iPhone and iPad models, plus Android resolutions), custom width and height
-- Live in-browser preview (rendered instantly, no server round-trips)
-- Lock-screen safe layouts (content sits in the middle band below the clock)
+- **Year:** a grid of every day in the year, with the days so far filled in and today highlighted
+- **Life:** one square for every week you have lived, counted from your date of birth
+- **Goal:** a countdown ring to a date that matters, showing the days left
+- **Progress:** a percent bar through any start and end date
 
-## Local development
+Each style comes with light and dark themes, five accent colors, and resolution presets for common iPhone, iPad, and Android screens so nothing gets cropped.
 
-```bash
-npm install
-npm run dev
-```
+## How it works
 
-Open [http://localhost:3000](http://localhost:3000).
-
-```bash
-npm run build
-npm start
-```
-
-## API
-
-All routes return a **PNG**. Shared query params:
-
-| Param | Default | Notes |
-|-------|---------|-------|
-| `width` | `1179` | 200 to 4000 |
-| `height` | `2556` | 200 to 5000 |
-| `theme` | `light` | `light` or `dark` |
-| `color` | `green` | accent: `green`, `blue`, `purple`, `red`, or `black` |
-
-Production host in examples: `https://dynamicwallpapers.alirad.dev`
-
-### Year: `GET /api/year`
-
-Optional: `year` (defaults to current year).
+Every endpoint (`/api/year`, `/api/life`, `/api/goal`, `/api/progress`) takes a handful of query params and returns a PNG:
 
 ```
-https://dynamicwallpapers.alirad.dev/api/year?width=1179&height=2556&theme=light
+/api/goal?goal=Ship+the+app&goal_date=2026-12-31&theme=dark
 ```
 
-### Life: `GET /api/life`
+The layout is drawn as an SVG on the server and rasterized to a PNG with sharp. The browser preview builds the exact same SVG on the client, so what you see while setting things up is what actually lands on your phone.
 
-| Param | Required | Notes |
-|-------|----------|-------|
-| `dob` | yes | `YYYY-MM-DD` |
-| `lifespan` | no | years, default `90` (1 to 120) |
+The hard part was text. When you rasterize SVG text on a server, the output depends on whatever fonts happen to be installed, which changes from one machine to the next. To get around that, I convert every label into vector path outlines from the real font file before rasterizing. The text then comes out pixel for pixel identical everywhere, with no font dependency at runtime.
 
-```
-https://dynamicwallpapers.alirad.dev/api/life?dob=1995-06-15&lifespan=90&width=1179&height=2556&theme=dark
-```
+## Tech stack
 
-### Goal: `GET /api/goal`
+- **Next.js** (App Router) and **TypeScript**
+- **Tailwind CSS** for the UI
+- **Framer Motion** for the setup wizard
+- **sharp** for SVG to PNG rasterizing
+- **opentype.js** for converting text into font outlines
+- Hosted on **Netlify**
 
-| Param | Required | Notes |
-|-------|----------|-------|
-| `goal` | yes | label text |
-| `goal_date` | yes | `YYYY-MM-DD` |
-| `start_date` | no | defaults to today |
+## What I learned
 
-```
-https://dynamicwallpapers.alirad.dev/api/goal?goal=Ship%20the%20product&goal_date=2026-12-31&start_date=2026-01-01&width=1179&height=2556
-```
-
-### Progress: `GET /api/progress`
-
-| Param | Required | Notes |
-|-------|----------|-------|
-| `label` | yes | label text |
-| `start_date` | yes | `YYYY-MM-DD` |
-| `end_date` | yes | `YYYY-MM-DD` |
-
-```
-https://dynamicwallpapers.alirad.dev/api/progress?label=This%20year&start_date=2026-01-01&end_date=2026-12-31&width=1179&height=2556
-```
-
-## Phone setup
-
-Use the on-site wizard for copyable URLs and step-by-step instructions.
-
-**Critical:** when applying the lock screen image, disable **Crop to Subject** and **Show Preview** (or equivalent depth and subject effects). Those options crop or blur the wallpaper and break the layout.
-
-- **iPhone:** Shortcuts automation, Get Contents of URL, Set Wallpaper Photo (Lock Screen), running daily.
-- **Android:** MacroDroid (or similar) with a daily macro that downloads the image and sets the lock screen wallpaper.
-
-## Deploy (Netlify + custom domain)
-
-Next.js App Router and API routes work on Netlify with zero config (OpenNext adapter is applied automatically).
-
-1. Import [alirad1/dynamic-wallpapers](https://github.com/alirad1/dynamic-wallpapers) into [Netlify](https://app.netlify.com).
-2. Build settings (also in [`netlify.toml`](./netlify.toml)): build command `npm run build`, publish directory `.next`.
-3. In the Netlify site, go to **Domain management** and add `dynamicwallpapers.alirad.dev`.
-4. At your DNS provider (registrar or Cloudflare), create a **CNAME** for `dynamicwallpapers` pointing to the Netlify target shown in the UI (typically `your-site.netlify.app`).
-5. Wait for SSL and DNS propagation, then confirm [https://dynamicwallpapers.alirad.dev](https://dynamicwallpapers.alirad.dev).
-
-## Stack
-
-- Next.js (App Router) + TypeScript + Tailwind CSS
-- Framer Motion for animation
-- SVG layouts rendered to PNG via [sharp](https://sharp.pixelplumbing.com/) on the server, and inline for the live preview
-- MIT License
+- Rendering text reliably on a server is far trickier than it sounds. Outlining glyphs myself forced me to actually understand font units, glyph advances, and how a typeface turns into pixels.
+- One source of truth is worth the effort. The same SVG builder feeds both the live preview and the final image, so the two can never fall out of sync.
+- Fewer moving parts is a feature. Dropping accounts and a database kept the app cheap to run and pushed the real logic into small, pure functions that are easy to test.
+- The last mile of UX is all details. Figuring out how to stop iOS from cropping the image took plenty of trial and error, and writing that up clearly saves every user the same frustration.
 
 ## License
 
-[MIT](./LICENSE)
+MIT
