@@ -4,18 +4,38 @@ export default function Home() {
   return (
     <main className="flex-1">
       <Wizard />
-      <footer className="border-t border-[var(--border)] px-5 py-10 text-center text-xs text-[var(--faint)] sm:px-8">
-        <p>
-          Open source,{" "}
+      <footer className="border-t border-[var(--border)] px-5 py-10 text-center sm:px-8">
+        <p className="text-sm text-[var(--muted)]">
           <a
             href="https://github.com/alirad1/dynamic-wallpapers"
-            className="text-[var(--forest-glow)] underline-offset-4 transition hover:underline"
+            className="underline-offset-4 transition hover:text-[var(--forest-glow)] hover:underline"
             target="_blank"
             rel="noopener noreferrer"
           >
-            view on GitHub
+            GitHub
           </a>
-          , MIT License.
+          <span className="mx-2 text-[var(--faint)]">·</span>
+          Made by{" "}
+          <a
+            href="https://alirad.dev"
+            className="underline-offset-4 transition hover:text-[var(--forest-glow)] hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Ali Rad
+          </a>
+          <span className="mx-2 text-[var(--faint)]">·</span>
+          <a
+            href="https://www.paypal.com/paypalme/theradicalone"
+            className="underline-offset-4 transition hover:text-[var(--forest-glow)] hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            PayPal
+          </a>
+        </p>
+        <p className="mt-2 text-xs font-light text-[var(--faint)]">
+          MIT licensed · No cookies, no tracking
         </p>
       </footer>
     </main>
