@@ -632,8 +632,7 @@ function StepDevice({
 }) {
   const options = devicesForPlatform(platform).map((d) => ({
     id: d.id,
-    label:
-      d.platform === "custom" ? d.label : `${d.label} (${d.width}x${d.height})`,
+    label: d.label,
   }));
 
   return (
@@ -718,26 +717,26 @@ function PlatformButton({
       onClick={onClick}
       whileHover={{ y: -3 }}
       whileTap={{ scale: 0.98 }}
-      className={`flex flex-col items-center gap-2 rounded-2xl border px-4 py-6 transition ${
+      className={`flex flex-row items-center justify-center gap-4 rounded-2xl border px-5 py-4 transition ${
         active
           ? "border-[var(--forest-bright)] bg-[var(--forest-deep)]/50"
           : "border-[var(--border)] bg-[var(--surface-2)] hover:border-[var(--border-strong)]"
       }`}
     >
-      <span
-        className={active ? "text-[var(--ink)]" : "text-[var(--muted)]"}
-      >
+      <span className={active ? "text-[var(--ink)]" : "text-[var(--muted)]"}>
         {logo === "apple" ? <AppleLogo /> : <AndroidLogo />}
       </span>
-      <span className="text-base font-semibold text-[var(--ink)]">{label}</span>
-      <span className="text-xs text-[var(--faint)]">{sub}</span>
+      <span className="flex flex-col items-start leading-tight">
+        <span className="text-lg font-semibold text-[var(--ink)]">{label}</span>
+        <span className="text-xs text-[var(--faint)]">{sub}</span>
+      </span>
     </motion.button>
   );
 }
 
 function AppleLogo() {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-9 w-9">
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-11 w-11">
       <path d="M17.05 12.53c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.19-1.73-1.36-.14-2.65.8-3.34.8-.68 0-1.75-.78-2.88-.76-1.48.02-2.85.86-3.61 2.19-1.54 2.67-.39 6.62 1.11 8.79.73 1.06 1.6 2.25 2.74 2.21 1.1-.05 1.52-.71 2.85-.71 1.33 0 1.7.71 2.86.69 1.18-.02 1.93-1.08 2.65-2.15.84-1.23 1.18-2.42 1.2-2.48-.03-.01-2.3-.88-2.32-3.51zM14.9 5.86c.6-.73 1.01-1.75.9-2.76-.87.03-1.92.58-2.54 1.31-.56.64-1.05 1.68-.92 2.67.97.07 1.96-.49 2.56-1.22z" />
     </svg>
   );
@@ -745,7 +744,7 @@ function AppleLogo() {
 
 function AndroidLogo() {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-9 w-9">
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-11 w-11">
       <path d="M6 9v7.5A1.5 1.5 0 0 0 7.5 18H8v3a1 1 0 1 0 2 0v-3h4v3a1 1 0 1 0 2 0v-3h.5A1.5 1.5 0 0 0 18 16.5V9H6zM3.5 9A1.5 1.5 0 0 0 2 10.5v4a1.5 1.5 0 1 0 3 0v-4A1.5 1.5 0 0 0 3.5 9zm17 0a1.5 1.5 0 0 0-1.5 1.5v4a1.5 1.5 0 1 0 3 0v-4A1.5 1.5 0 0 0 20.5 9zM15.6 3.2l1.14-1.14a.4.4 0 0 0-.57-.57l-1.28 1.28A5.9 5.9 0 0 0 12 2.1c-.98 0-1.9.24-2.71.66L8.03 1.49a.4.4 0 1 0-.57.57L8.6 3.2A5.94 5.94 0 0 0 6.02 8h11.96c0-1.94-.94-3.66-2.38-4.8zM9.5 6.25a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5zm5 0a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5z" />
     </svg>
   );
@@ -761,7 +760,7 @@ function Field({
   className?: string;
 }) {
   return (
-    <label className={`block space-y-1.5 ${className}`}>
+    <label className={`flex flex-col gap-2 ${className}`}>
       <span className="text-xs font-medium uppercase tracking-wide text-[var(--faint)]">
         {label}
       </span>

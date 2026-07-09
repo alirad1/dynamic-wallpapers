@@ -26,6 +26,9 @@ export const IPHONE_DEVICES: DevicePreset[] = [
 ];
 
 export const ANDROID_DEVICES: DevicePreset[] = [
+  // Custom (kept at the top for Android)
+  { id: "android-custom", label: "Custom width x height", width: 1080, height: 2400, platform: "custom" },
+
   // Samsung Galaxy
   { id: "galaxy-s25-ultra", label: "Samsung Galaxy S25 Ultra", width: 1440, height: 3120, platform: "android" },
   { id: "galaxy-s25-plus", label: "Samsung Galaxy S25+", width: 1440, height: 3120, platform: "android" },
@@ -80,15 +83,16 @@ export const ANDROID_DEVICES: DevicePreset[] = [
   { id: "android-1440x3200", label: "Generic 1440 x 3200 (QHD+)", width: 1440, height: 3200, platform: "android" },
   { id: "android-1080x2400", label: "Generic 1080 x 2400 (FHD+)", width: 1080, height: 2400, platform: "android" },
   { id: "android-1080x1920", label: "Generic 1080 x 1920 (FHD)", width: 1080, height: 1920, platform: "android" },
-
-  // Custom
-  { id: "android-custom", label: "Custom width x height", width: 1080, height: 2400, platform: "custom" },
 ];
 
 export const ALL_DEVICES: DevicePreset[] = [...IPHONE_DEVICES, ...ANDROID_DEVICES];
 
-export const DEFAULT_IPHONE = IPHONE_DEVICES[3]; // iPhone 16
-export const DEFAULT_ANDROID = ANDROID_DEVICES[3]; // Galaxy S24 Ultra
+export const DEFAULT_IPHONE =
+  IPHONE_DEVICES.find((d) => d.id === "iphone-16") ?? IPHONE_DEVICES[0];
+export const DEFAULT_ANDROID =
+  ANDROID_DEVICES.find((d) => d.id === "galaxy-s24-ultra") ??
+  ANDROID_DEVICES.find((d) => d.platform === "android") ??
+  ANDROID_DEVICES[0];
 export const DEFAULT_DEVICE = DEFAULT_IPHONE;
 
 export function getDeviceById(id: string): DevicePreset | undefined {

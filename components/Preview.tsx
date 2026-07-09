@@ -1,22 +1,43 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { buildWallpaperSvg, type WallpaperSpec } from "@/lib/wallpaper/build";
 
 type PreviewProps = {
   spec: WallpaperSpec;
 };
 
+function formatClock(d: Date): { time: string; date: string } {
+  let hours = d.getHours() % 12;
+  if (hours === 0) hours = 12;
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  const time = `${hours}:${minutes}`;
+  const date = d.toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+  return { time, date };
+}
+
 export function Preview({ spec }: PreviewProps) {
   const svg = useMemo(() => buildWallpaperSvg(spec), [spec]);
   const dataUri = useMemo(
-    () =>
-      svg
-        ? `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
-        : null,
+    () => (svg ? `data:image/svg+xml;utf8,${encodeURIComponent(svg)}` : null),
     [svg],
   );
+
+  const [clock, setClock] = useState<{ time: string; date: string } | null>(
+    null,
+  );
+
+  useEffect(() => {
+    const update = () => setClock(formatClock(new Date()));
+    update();
+    const id = window.setInterval(update, 10000);
+    return () => window.clearInterval(id);
+  }, []);
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -27,14 +48,12 @@ export function Preview({ spec }: PreviewProps) {
         className="relative"
         style={{ perspective: 1000 }}
       >
-        <div
-          className="relative w-[230px] overflow-hidden rounded-[2.6rem] border border-[var(--border-strong)] bg-black p-[6px] shadow-[0_30px_80px_-30px_rgba(82,183,136,0.5)]"
-        >
+        <div className="relative w-[230px] overflow-hidden rounded-[2.6rem] border border-[var(--border-strong)] bg-black p-[6px] shadow-[0_30px_80px_-30px_rgba(82,183,136,0.5)]">
           <div
             className="relative overflow-hidden rounded-[2.1rem] bg-black"
             style={{ aspectRatio: `${spec.width} / ${spec.height}` }}
           >
-            <div className="pointer-events-none absolute left-1/2 top-2 z-10 h-[22px] w-[86px] -translate-x-1/2 rounded-full bg-black/85" />
+            <div className="pointer-events-none absolute left-1/2 top-[9px] z-20 h-[20px] w-[74px] -translate-x-1/2 rounded-full bg-black" />
 
             <AnimatePresence mode="wait">
               {dataUri ? (
@@ -61,13 +80,26 @@ export function Preview({ spec }: PreviewProps) {
               )}
             </AnimatePresence>
 
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-x-0 top-[15%] text-center font-medium tracking-tight text-white/85"
-              style={{ fontSize: 34 }}
-            >
-              9:41
-            </div>
+            {clock && (
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 top-[8%] z-10 flex flex-col items-center text-white"
+                style={{ textShadow: "0 1px 8px rgba(0,0,0,0.35)" }}
+              >
+                <span
+                  className="font-medium"
+                  style={{ fontSize: 11, letterSpacing: 0.2 }}
+                >
+                  {clock.date}
+                </span>
+                <span
+                  className="font-semibold tracking-tight"
+                  style={{ fontSize: 52, lineHeight: 1.05 }}
+                >
+                  {clock.time}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </motion.div>

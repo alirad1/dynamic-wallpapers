@@ -57,9 +57,9 @@ export function Combobox({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="field flex items-center justify-between gap-2 text-left"
+        className="flex w-full items-center justify-between gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-3.5 py-2.5 text-left text-sm transition hover:border-[var(--border-strong)] focus:border-[var(--forest-bright)] focus:outline-none focus:ring-[3px] focus:ring-[rgba(82,183,136,0.18)]"
       >
-        <span className={selected ? "text-[var(--ink)]" : "text-[var(--faint)]"}>
+        <span className={`truncate ${selected ? "text-[var(--ink)]" : "text-[var(--faint)]"}`}>
           {selected?.label ?? placeholder}
         </span>
         <svg
