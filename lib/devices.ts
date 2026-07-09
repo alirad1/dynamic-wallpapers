@@ -7,31 +7,21 @@ export type DevicePreset = {
 };
 
 export const IPHONE_DEVICES: DevicePreset[] = [
+  // iPhones (models that share a resolution are grouped into one entry)
   { id: "iphone-16-pro-max", label: "iPhone 16 Pro Max", width: 1320, height: 2868, platform: "iphone" },
   { id: "iphone-16-pro", label: "iPhone 16 Pro", width: 1206, height: 2622, platform: "iphone" },
-  { id: "iphone-16-plus", label: "iPhone 16 Plus", width: 1290, height: 2796, platform: "iphone" },
-  { id: "iphone-16", label: "iPhone 16", width: 1179, height: 2556, platform: "iphone" },
-  { id: "iphone-15-pro-max", label: "iPhone 15 Pro Max", width: 1290, height: 2796, platform: "iphone" },
-  { id: "iphone-15-pro", label: "iPhone 15 Pro", width: 1179, height: 2556, platform: "iphone" },
-  { id: "iphone-15-plus", label: "iPhone 15 Plus", width: 1290, height: 2796, platform: "iphone" },
-  { id: "iphone-15", label: "iPhone 15", width: 1179, height: 2556, platform: "iphone" },
-  { id: "iphone-14-pro-max", label: "iPhone 14 Pro Max", width: 1290, height: 2796, platform: "iphone" },
-  { id: "iphone-14-pro", label: "iPhone 14 Pro", width: 1179, height: 2556, platform: "iphone" },
-  { id: "iphone-14-plus", label: "iPhone 14 Plus", width: 1284, height: 2778, platform: "iphone" },
-  { id: "iphone-14", label: "iPhone 14", width: 1170, height: 2532, platform: "iphone" },
-  { id: "iphone-13-pro-max", label: "iPhone 13 Pro Max", width: 1284, height: 2778, platform: "iphone" },
-  { id: "iphone-13", label: "iPhone 13 / 13 Pro", width: 1170, height: 2532, platform: "iphone" },
+  { id: "iphone-1290x2796", label: "iPhone 16 Plus / 15 Pro Max / 15 Plus / 14 Pro Max", width: 1290, height: 2796, platform: "iphone" },
+  { id: "iphone-1179x2556", label: "iPhone 16 / 15 Pro / 15 / 14 Pro", width: 1179, height: 2556, platform: "iphone" },
+  { id: "iphone-1284x2778", label: "iPhone 14 Plus / 13 Pro Max", width: 1284, height: 2778, platform: "iphone" },
+  { id: "iphone-1170x2532", label: "iPhone 14 / 13 / 13 Pro", width: 1170, height: 2532, platform: "iphone" },
   { id: "iphone-se", label: "iPhone SE (3rd gen)", width: 750, height: 1334, platform: "iphone" },
 
-  // iPad (portrait)
+  // iPad (portrait, models that share a resolution are grouped into one entry)
   { id: "ipad-pro-13-m4", label: "iPad Pro 13\" (M4)", width: 2064, height: 2752, platform: "iphone" },
   { id: "ipad-pro-11-m4", label: "iPad Pro 11\" (M4)", width: 1668, height: 2420, platform: "iphone" },
-  { id: "ipad-pro-12-9-m2", label: "iPad Pro 12.9\" (M2)", width: 2048, height: 2732, platform: "iphone" },
+  { id: "ipad-2048x2732", label: "iPad Pro 12.9\" (M2) / iPad Air 13\" (M2/M3)", width: 2048, height: 2732, platform: "iphone" },
   { id: "ipad-pro-11-m2", label: "iPad Pro 11\" (M2)", width: 1668, height: 2388, platform: "iphone" },
-  { id: "ipad-air-13-m2", label: "iPad Air 13\" (M2/M3)", width: 2048, height: 2732, platform: "iphone" },
-  { id: "ipad-air-11-m2", label: "iPad Air 11\" (M2/M3)", width: 1640, height: 2360, platform: "iphone" },
-  { id: "ipad-air-5", label: "iPad Air (5th gen)", width: 1640, height: 2360, platform: "iphone" },
-  { id: "ipad-10", label: "iPad (10th gen)", width: 1640, height: 2360, platform: "iphone" },
+  { id: "ipad-1640x2360", label: "iPad Air 11\" (M2/M3) / iPad Air 5 / iPad 10th gen", width: 1640, height: 2360, platform: "iphone" },
   { id: "ipad-a16-11", label: "iPad (A16, 11th gen)", width: 1620, height: 2160, platform: "iphone" },
   { id: "ipad-mini-a17", label: "iPad mini (A17 Pro / 6th gen)", width: 1488, height: 2266, platform: "iphone" },
 
@@ -101,7 +91,7 @@ export const ANDROID_DEVICES: DevicePreset[] = [
 export const ALL_DEVICES: DevicePreset[] = [...IPHONE_DEVICES, ...ANDROID_DEVICES];
 
 export const DEFAULT_IPHONE =
-  IPHONE_DEVICES.find((d) => d.id === "iphone-16") ?? IPHONE_DEVICES[0];
+  IPHONE_DEVICES.find((d) => d.id === "iphone-16-pro") ?? IPHONE_DEVICES[0];
 export const DEFAULT_ANDROID =
   ANDROID_DEVICES.find((d) => d.id === "galaxy-s24-ultra") ??
   ANDROID_DEVICES.find((d) => d.platform === "android") ??
