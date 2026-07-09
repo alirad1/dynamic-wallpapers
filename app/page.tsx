@@ -6,7 +6,7 @@ export default function Home() {
       <main className="flex-1">
         <Wizard />
       </main>
-      <footer className="border-t border-[var(--border)] px-5 py-10 text-center sm:px-8">
+      <footer className="border-t border-[var(--border)] px-5 py-6 text-center sm:px-8">
         <p className="text-sm text-[var(--muted)]">
           <a
             href="https://github.com/alirad1/dynamic-wallpapers"
@@ -35,9 +35,6 @@ export default function Home() {
           >
             Support me
           </a>
-        </p>
-        <p className="mt-2 text-xs font-light text-[var(--faint)]">
-          MIT licensed · No cookies, no tracking
         </p>
       </footer>
     </>

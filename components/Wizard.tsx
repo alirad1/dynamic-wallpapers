@@ -166,7 +166,7 @@ export function Wizard() {
 
   return (
     <div
-      className={`mx-auto w-full px-5 pb-28 pt-14 sm:px-8 sm:pt-20 ${
+      className={`mx-auto w-full px-5 pb-16 pt-14 sm:px-8 sm:pt-20 ${
         step === 0 ? "max-w-5xl" : "max-w-6xl"
       }`}
     >
