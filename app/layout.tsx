@@ -83,7 +83,7 @@ export const metadata: Metadata = {
   },
   category: "technology",
   verification: {
-    google: "OW9ZCUWWXe2JZhBAy_1Bn0BHCcXH_VVkJoiFFrd5ZiU",
+    google: "ktVgOh9jj4MSE-nvfrRHBYUw81fNglJ3vuvzsZ_F1OU",
   },
 };
 
