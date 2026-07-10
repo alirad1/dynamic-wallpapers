@@ -3,6 +3,12 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import {
+  plusDaysISO,
+  todayISO,
+  yearEndISO,
+  yearStartISO,
+} from "@/lib/dates";
+import {
   ANDROID_DEVICES,
   DEFAULT_ANDROID,
   DEFAULT_DEVICE,
@@ -30,31 +36,6 @@ const TYPES: {
 ];
 
 const STEPS = ["Type", "Details", "Device", "Install"] as const;
-
-function todayISO(): string {
-  return isoOffset(0);
-}
-
-function plusDaysISO(days: number): string {
-  return isoOffset(days);
-}
-
-function isoOffset(days: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() + days);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-function yearStartISO(): string {
-  return `${new Date().getFullYear()}-01-01`;
-}
-
-function yearEndISO(): string {
-  return `${new Date().getFullYear()}-12-31`;
-}
 
 export function Wizard() {
   const [step, setStep] = useState(0);

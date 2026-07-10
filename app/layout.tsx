@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Source_Sans_3 } from "next/font/google";
+import { JsonLd } from "@/components/JsonLd";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const display = Fraunces({
@@ -13,18 +15,75 @@ const body = Source_Sans_3({
   subsets: ["latin"],
 });
 
+const title =
+  "Dynamic Wallpapers — Custom iPhone & Android Lock Screen Wallpapers That Update Daily";
+
 export const metadata: Metadata = {
-  title: "Dynamic Wallpapers",
-  description:
-    "Daily-updating lock screen wallpapers for year, life, goal, and progress, generated from a simple URL. No accounts.",
-  metadataBase: new URL("https://dynamicwallpapers.alirad.dev"),
+  title: {
+    default: title,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "custom iPhone wallpaper",
+    "custom iPhone lock screen wallpaper",
+    "custom Android wallpaper",
+    "custom wallpaper for Android",
+    "goal setting wallpaper",
+    "goal countdown wallpaper",
+    "year progress wallpaper",
+    "year in pixels wallpaper",
+    "life in weeks wallpaper",
+    "daily updating wallpaper",
+    "automatic lock screen wallpaper",
+    "iOS Shortcuts wallpaper",
+    "MacroDroid wallpaper",
+    "motivational lock screen",
+    "progress tracker wallpaper",
+    "custom phone wallpaper generator",
+    "free lock screen wallpaper",
+    "dynamic wallpaper",
+    "wallpaper that changes every day",
+    "Samsung Galaxy wallpaper",
+    "Google Pixel wallpaper",
+    "iPhone 16 wallpaper",
+    "countdown wallpaper",
+    "habit tracker wallpaper",
+    "productivity wallpaper",
+  ],
+  authors: [{ name: "Ali Rad", url: "https://alirad.dev" }],
+  creator: "Ali Rad",
+  metadataBase: new URL(SITE_URL),
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "Dynamic Wallpapers",
-    description:
-      "Lock screen wallpapers that update themselves every day. No accounts, no app.",
-    url: "https://dynamicwallpapers.alirad.dev",
-    siteName: "Dynamic Wallpapers",
+    title,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
     type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  category: "technology",
+  verification: {
+    google: "OW9ZCUWWXe2JZhBAy_1Bn0BHCcXH_VVkJoiFFrd5ZiU",
   },
 };
 
@@ -43,6 +102,7 @@ export default function RootLayout({
       className={`${display.variable} ${body.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
+        <JsonLd />
         <div className="aurora" aria-hidden />
         {children}
       </body>

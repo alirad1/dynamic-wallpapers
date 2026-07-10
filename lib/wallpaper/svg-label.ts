@@ -1,4 +1,4 @@
-import { escapeXml } from "./theme";
+import { escapeXml, SVG_FONT_FAMILY } from "./theme";
 
 export type SvgTextOptions = {
   x: number;
@@ -14,5 +14,5 @@ export type SvgTextOptions = {
 export function svgText(opts: SvgTextOptions): string {
   const anchor = opts.anchor ?? "middle";
   const weight = opts.bold ? 700 : 400;
-  return `<text x="${opts.x}" y="${opts.y}" text-anchor="${anchor}" font-family="DejaVu Sans, sans-serif" font-size="${opts.fontSize}" font-weight="${weight}" fill="${opts.fill}">${escapeXml(opts.text)}</text>`;
+  return `<text x="${opts.x}" y="${opts.y}" text-anchor="${anchor}" font-family="${SVG_FONT_FAMILY}" font-size="${opts.fontSize}" font-weight="${weight}" fill="${opts.fill}">${escapeXml(opts.text)}</text>`;
 }

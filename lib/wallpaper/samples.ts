@@ -1,9 +1,10 @@
 import { buildWallpaperSvg, type WallpaperSpec, type WallpaperType } from "./build";
+import { svgToDataUri } from "./svg-utils";
 
 const SAMPLE_WIDTH = 390;
 const SAMPLE_HEIGHT = 844;
 
-export function typeSampleSpec(type: WallpaperType): WallpaperSpec {
+function typeSampleSpec(type: WallpaperType): WallpaperSpec {
   const base: WallpaperSpec = {
     type,
     width: SAMPLE_WIDTH,
@@ -33,5 +34,5 @@ export function typeSampleSpec(type: WallpaperType): WallpaperSpec {
 
 export function typeSampleDataUri(type: WallpaperType): string | null {
   const svg = buildWallpaperSvg(typeSampleSpec(type));
-  return svg ? `data:image/svg+xml;utf8,${encodeURIComponent(svg)}` : null;
+  return svg ? svgToDataUri(svg) : null;
 }

@@ -88,8 +88,6 @@ export const ANDROID_DEVICES: DevicePreset[] = [
   { id: "android-1080x1920", label: "Generic 1080 x 1920 (FHD)", width: 1080, height: 1920, platform: "android" },
 ];
 
-export const ALL_DEVICES: DevicePreset[] = [...IPHONE_DEVICES, ...ANDROID_DEVICES];
-
 export const DEFAULT_IPHONE =
   IPHONE_DEVICES.find((d) => d.id === "iphone-16-pro") ?? IPHONE_DEVICES[0];
 export const DEFAULT_ANDROID =

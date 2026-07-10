@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-export type ComboOption = {
+type ComboOption = {
   id: string;
   label: string;
 };

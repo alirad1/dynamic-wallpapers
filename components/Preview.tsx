@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { buildWallpaperSvg, type WallpaperSpec } from "@/lib/wallpaper/build";
+import { svgToDataUri } from "@/lib/wallpaper/svg-utils";
 
 type PreviewProps = {
   spec: WallpaperSpec;
@@ -23,10 +24,7 @@ function formatClock(d: Date): { time: string; date: string } {
 
 export function Preview({ spec }: PreviewProps) {
   const svg = useMemo(() => buildWallpaperSvg(spec), [spec]);
-  const dataUri = useMemo(
-    () => (svg ? `data:image/svg+xml;utf8,${encodeURIComponent(svg)}` : null),
-    [svg],
-  );
+  const dataUri = useMemo(() => (svg ? svgToDataUri(svg) : null), [svg]);
 
   const [clock, setClock] = useState<{ time: string; date: string } | null>(
     null,
