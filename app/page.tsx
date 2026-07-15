@@ -1,4 +1,3 @@
-import { SeoContent } from "@/components/SeoContent";
 import { Wizard } from "@/components/Wizard";
 
 export default function Home() {
@@ -6,7 +5,6 @@ export default function Home() {
     <>
       <main className="flex-1">
         <Wizard />
-        <SeoContent />
       </main>
       <footer className="border-t border-[var(--border)] px-5 py-6 text-center sm:px-8">
         <p className="text-sm text-[var(--muted)]">

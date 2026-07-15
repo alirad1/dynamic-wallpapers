@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { SITE_NAME } from "@/lib/site";
 
-export const alt = `${SITE_NAME} — custom lock screen wallpapers for iPhone and Android`;
+export const alt = `${SITE_NAME} — daily-updating lock screen wallpapers`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export const runtime = "edge";

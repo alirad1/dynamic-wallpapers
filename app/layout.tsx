@@ -15,8 +15,7 @@ const body = Source_Sans_3({
   subsets: ["latin"],
 });
 
-const title =
-  "Dynamic Wallpapers — Custom iPhone & Android Lock Screen Wallpapers That Update Daily";
+const title = `${SITE_NAME} — Daily Lock Screen Wallpapers`;
 
 export const metadata: Metadata = {
   title: {
@@ -24,33 +23,7 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
-  keywords: [
-    "custom iPhone wallpaper",
-    "custom iPhone lock screen wallpaper",
-    "custom Android wallpaper",
-    "custom wallpaper for Android",
-    "goal setting wallpaper",
-    "goal countdown wallpaper",
-    "year progress wallpaper",
-    "year in pixels wallpaper",
-    "life in weeks wallpaper",
-    "daily updating wallpaper",
-    "automatic lock screen wallpaper",
-    "iOS Shortcuts wallpaper",
-    "MacroDroid wallpaper",
-    "motivational lock screen",
-    "progress tracker wallpaper",
-    "custom phone wallpaper generator",
-    "free lock screen wallpaper",
-    "dynamic wallpaper",
-    "wallpaper that changes every day",
-    "Samsung Galaxy wallpaper",
-    "Google Pixel wallpaper",
-    "iPhone 16 wallpaper",
-    "countdown wallpaper",
-    "habit tracker wallpaper",
-    "productivity wallpaper",
-  ],
+  applicationName: SITE_NAME,
   authors: [{ name: "Ali Rad", url: "https://alirad.dev" }],
   creator: "Ali Rad",
   metadataBase: new URL(SITE_URL),
@@ -76,12 +49,10 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      "max-video-preview": -1,
       "max-image-preview": "large",
       "max-snippet": -1,
     },
   },
-  category: "technology",
   verification: {
     google: "ktVgOh9jj4MSE-nvfrRHBYUw81fNglJ3vuvzsZ_F1OU",
   },
